@@ -17,7 +17,7 @@ class TargetTemperature:
         Set the temperature (in Celsius) only if it is between 0 and 70, according to the operating temperature of the
         RaspberryPi as specified at : https://www.raspberrypi.org/help/faqs/#performanceOperatingTemperature
         :param temperature:
-        :return:
+        :return temperature:
         """
         if (temperature >= 0 and temperature <= 70):
             self.temperature = temperature
