@@ -14,7 +14,8 @@ class Gatherer:
 
     order_of_columns = ['date', 'cpu_divisor_for_target_temp', 'target_temperature', 'cpu_usage', 'load_avg_1_min',
                         'load_avg_5_min', 'load_avg_15_min', 'sense_hat_temp', 'sense_hat_temp_from_humidity',
-                        'sense_hat_temp_from_pressure', 'cpu_temp']
+                        'sense_hat_temp_from_pressure', 'cpu_temp', 'accelerometer_x', 'accelerometer_y',
+                        'accelerometer_z']
 
     def __init__(self, target_temperature, time_interval, log_filename, log_data_separator):
         self.target_temperature = target_temperature
@@ -87,17 +88,30 @@ class Gatherer:
         self.update_cpu_stat_times()
         self.update_all_temp_data()
         self.update_cpu_load_average()
+        accelerometer_data = self.get_accelerometer_data()
 
+        # Related to what's needed to reach target temperature.
         self.data_for_logging['cpu_divisor_for_target_temp'] = str(self.calculate_cpu_divisor_for_target_temp())
         self.data_for_logging['target_temperature'] = str(self.current_target_temperature)
+
+        # CPU usage and averages
         self.data_for_logging['cpu_usage'] = str(self.get_cpu_usage())
         self.data_for_logging['load_avg_1_min'] = str(self.cpu_load_avg_1_min)
         self.data_for_logging['load_avg_5_min'] = str(self.cpu_load_avg_5_min)
         self.data_for_logging['load_avg_15_min'] = str(self.cpu_load_avg_15_min)
+
+        # Temperature
         self.data_for_logging['sense_hat_temp'] = str(self.sense_hat_temp)
         self.data_for_logging['sense_hat_temp_from_humidity'] = str(self.sense_hat_temp_from_humidity)
         self.data_for_logging['sense_hat_temp_from_pressure'] = str(self.sense_hat_temp_from_pressure)
         self.data_for_logging['cpu_temp'] = str(self.cpu_temp)
+
+        # Accelerometer data
+        self.data_for_logging['accelerometer_x'] = accelerometer_data['x']
+        self.data_for_logging['accelerometer_y'] = accelerometer_data['y']
+        self.data_for_logging['accelerometer_z'] = accelerometer_data['z']
+
+        # This should be added last so the date is when nearly everything is done before actual logging.
         self.data_for_logging['date'] = str(datetime.now())
 
     def update_all_temp_data(self):
@@ -120,7 +134,8 @@ class Gatherer:
         target_temperature = ((t+p+h)/3) - (c/divisor)
         :return: A float that has the value for what the divisor would be.
         """
-        average_sense_hat_temp = (self.sense_hat_temp + self.sense_hat_temp_from_humidity + self.sense_hat_temp_from_pressure) / 3
+        average_sense_hat_temp = (self.sense_hat_temp + self.sense_hat_temp_from_humidity +
+                                  self.sense_hat_temp_from_pressure) / 3
         return self.cpu_temp / -(self.current_target_temperature - average_sense_hat_temp)
 
     def update_current_target_temperature(self):
@@ -205,3 +220,10 @@ class Gatherer:
             cpu_times[i] = int(cpu_times[i])
 
         self.current_cpu_times = cpu_times
+
+    def get_accelerometer_data(self):
+        """
+        Wrapper method for get_accelerometer_raw().
+        :return: It returns a dictionary containing the acceleration on the x, y and z axis.
+        """
+        return self.sense_hat.get_accelerometer_raw()
