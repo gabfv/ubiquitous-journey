@@ -17,12 +17,13 @@ class Gatherer:
                         'sense_hat_temp_from_pressure', 'cpu_temp', 'accelerometer_x', 'accelerometer_y',
                         'accelerometer_z']
 
-    def __init__(self, target_temperature, time_interval, log_filename, log_data_separator):
-        self.target_temperature = target_temperature
-        self.current_target_temperature = target_temperature.get_temperature()
-        self.time_interval = time_interval
-        self.log_filename = log_filename
-        self.log_data_separator = log_data_separator
+    def __init__(self):
+        self.target_temperature = None
+        self.current_target_temperature = None
+        self.time_interval = None
+        self.log_filename = None
+        self.log_data_separator = None
+        self.file_handle_log = None
 
         self.sense_hat = SenseHat()
         self.current_cpu_times = None
@@ -36,18 +37,28 @@ class Gatherer:
         self.cpu_temp = None
         self.data_for_logging = {}
 
-        # TODO: should check if the header is correct. Perhaps include a version number?
-        self.file_handle_log = self.open_log_file()
-        self.insert_log_column_headers()
-
         # We'll need to update the cpu stats once and sleep the time_interval for the first run.
         self.update_cpu_stat_times()
         time.sleep(self.time_interval)
 
-    def start_logging(self):
+    def start_logging(self, time_interval, log_filename, log_data_separator, target_temperature):
         """
         Start the logging to the log file.
+        :param time_interval:
+        :param log_filename:
+        :param log_data_separator:
+        :param target_temperature:
         """
+        self.target_temperature = target_temperature
+        self.current_target_temperature = target_temperature.get_temperature()
+        self.time_interval = time_interval
+        self.log_filename = log_filename
+        self.log_data_separator = log_data_separator
+
+        # TODO: should check if the header is correct. Perhaps include a version number?
+        self.file_handle_log = self.open_log_file()
+        self.insert_log_column_headers()
+
         self.main_loop()
 
     def main_loop(self):
