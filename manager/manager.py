@@ -6,6 +6,8 @@ class Manager:
     This is to manage the interactions between the joystick, screen and the data gatherer.
     """
 
+    screen_order = ['Temperature', 'Pressure', 'Humidity']
+
     def __init__(self):
         self.sense_hat = SenseHat()
         self.screen_index = 0
@@ -60,7 +62,7 @@ class Manager:
         while screen_off:
             joystick_event = self.sense_hat.stick.wait_for_event()
             if joystick_event.direction is 'push':
-                # TODO : update the screen
+                self.update_screen()
                 screen_off = False
 
     def update_screen_index(self, joystick_event):
@@ -72,3 +74,11 @@ class Manager:
             self.screen_index -= 1
         elif joystick_event.direction is 'right':
             self.screen_index += 1
+
+    def update_screen(self):
+        """
+        Update the current screen shown on the SenseHat.
+        """
+        current_screen_index = abs(self.screen_index) % 3
+        if Manager.screen_order[current_screen_index] is 'Temperature':
+            self.sense_hat.show_letter('T')  # TODO: Temporary for a test.
