@@ -3,18 +3,28 @@ from sense_hat import SenseHat
 
 class Manager:
     """
-    This is to manage the interactions between the joystick, screen and the data gatherer.
+    This is to manage the interactions between the joystick, screen and the data gatherer. It will allow screens showing
+    different information to be switched with the left/right joystick directions, values to be changed with up/down
+    directions and toggle the screen with the push action.
     """
 
     screen_order = ['Temperature', 'Pressure', 'Humidity']
+    green = (0, 255, 0)
+    red = (255, 0, 0)
+    blue = (0, 0, 255)
+    white = (255, 255, 255)
+    nb_pixels_on_screen = 64
 
     def __init__(self):
         self.sense_hat = SenseHat()
         self.screen_index = 0
+        self.value_index = 0
 
     def main_loop(self):
         while True:
             self.update_screen_rotation()
+            self.manage_joystick_events()
+            self.update_screen()
             # TODO : continue with what's needed
 
     def update_screen_rotation(self):
@@ -35,6 +45,7 @@ class Manager:
             self.sense_hat.set_rotation(180)
         else:
             self.sense_hat.set_rotation(270)
+        # TODO: include a way to rotate the joystick as well?
 
     def manage_joystick_events(self):
         """
@@ -72,8 +83,14 @@ class Manager:
         """
         if joystick_event.direction is 'left':
             self.screen_index -= 1
+            self.value_index = 0  # We don't want the values to carry through other screens.
         elif joystick_event.direction is 'right':
             self.screen_index += 1
+            self.value_index = 0  # We don't want the values to carry through other screens.
+        elif joystick_event.direction is 'down':
+            self.value_index -= 1
+        elif joystick_event.direction is 'up':
+            self.value_index += 1
 
     def update_screen(self):
         """
@@ -81,4 +98,24 @@ class Manager:
         """
         current_screen_index = abs(self.screen_index) % 3
         if Manager.screen_order[current_screen_index] is 'Temperature':
-            self.sense_hat.show_letter('T')  # TODO: Temporary for a test.
+            self.update_screen_for_temperature()
+
+    def update_screen_for_temperature(self):
+        """
+        Update the screen for the temperature screen.
+        """
+        temperature = self.sense_hat.get_temperature()
+
+        current_value_index = abs(self.value_index) % 2
+
+        if current_value_index == 0:
+            self.sense_hat.show_message(str(self.sense_hat.get_temperature()))  # TODO: Temporary for a test.
+        elif current_value_index == 1:
+            screen_fill_for_temp = temperature / 2.5 + 16
+            pixels = [Manager.red if i < screen_fill_for_temp else Manager.white
+                      for i in range(Manager.nb_pixels_on_screen)]
+            self.sense_hat.set_pixels(pixels)
+
+if __name__ == '__main__':
+    manager = Manager()
+    manager.main_loop()
