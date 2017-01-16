@@ -1,6 +1,7 @@
 import os
 import re
 import time
+from datetime import datetime
 
 from sense_hat import SenseHat
 
@@ -11,18 +12,31 @@ class Gatherer:
     The data is mostly related to temperature and the RaspberryPi CPU usage.
     """
 
+    order_of_columns = ['date', 'cpu_divisor_for_target_temp', 'target_temperature', 'cpu_usage', 'load_avg_1_min',
+                        'load_avg_5_min', 'load_avg_15_min', 'sense_hat_temp', 'sense_hat_temp_from_humidity',
+                        'sense_hat_temp_from_pressure', 'cpu_temp']
+
     def __init__(self, target_temperature, time_interval, log_filename):
         self.target_temperature = target_temperature
+        self.current_target_temperature = target_temperature.get_temperature()
         self.time_interval = time_interval
         self.log_filename = log_filename
 
         self.sense_hat = SenseHat()
         self.current_cpu_times = None
         self.previous_cpu_times = None
+        self.cpu_load_avg_1_min = None
+        self.cpu_load_avg_5_min = None
+        self.cpu_load_avg_15_min = None
+        self.sense_hat_temp = None
+        self.sense_hat_temp_from_humidity = None
+        self.sense_hat_temp_from_pressure = None
+        self.cpu_temp = None
+        self.data_for_logging = {}
         self.file_handle_log = self.open_log_file()
 
         # We'll need to update the cpu stats once and sleep the time_interval for the first run.
-        self.update_cpu_times()
+        self.update_cpu_stat_times()
         time.sleep(self.time_interval)
 
         self.main_loop()
@@ -31,51 +45,103 @@ class Gatherer:
         """
         The main loop will gather various data from the sensors of the SensorHat and the RaspberryPi and log it all
         to a file.
-        :return:
         """
         while True:
-            self.update_cpu_times()
+            self.update_all_data_for_logging()
 
             time.sleep(self.time_interval)
 
     def open_log_file(self):
+        """
+        Open the log file.
+        :return: File handle for the log file.
+        """
         return open(self.log_filename, 'a+')  # TODO: Need an exception handler.
 
-#   def get_all_data(self):
+    def update_all_data_for_logging(self):
+        """
+        Update all data and "stringify" it for logging purposes.
+        """
+        self.update_cpu_stat_times()
+        self.update_all_temp_data()
+        self.update_cpu_load_average()
 
-    def get_cpu_temp(self):
+        self.data_for_logging['cpu_divisor_for_target_temp'] = str(self.calculate_cpu_divisor_for_target_temp())
+        self.data_for_logging['target_temperature'] = str(self.current_target_temperature)
+        self.data_for_logging['cpu_usage'] = str(self.get_cpu_usage())
+        self.data_for_logging['load_avg_1_min'] = str(self.cpu_load_avg_1_min)
+        self.data_for_logging['load_avg_5_min'] = str(self.cpu_load_avg_5_min)
+        self.data_for_logging['load_avg_15_min'] = str(self.cpu_load_avg_15_min)
+        self.data_for_logging['sense_hat_temp'] = str(self.sense_hat_temp)
+        self.data_for_logging['sense_hat_temp_from_humidity'] = str(self.sense_hat_temp_from_humidity)
+        self.data_for_logging['sense_hat_temp_from_pressure'] = str(self.sense_hat_temp_from_pressure)
+        self.data_for_logging['cpu_temp'] = str(self.cpu_temp)
+        self.data_for_logging['date'] = str(datetime.now())
+
+    def update_all_temp_data(self):
+        """
+        Update all the data related to temperature.
+        """
+        self.update_cpu_temp()
+        self.update_sense_hat_temp()
+        self.update_sense_hat_temp_from_humidity()
+        self.update_sense_hat_temp_from_pressure()
+        self.update_current_target_temperature()
+
+    def calculate_cpu_divisor_for_target_temp(self):
+        """
+        Calculate the divisor needed to reach the target temperature according to this formula (last line) :
+        t = sense.get_temperature()
+        p = sense.get_temperature_from_pressure()
+        h = sense.get_temperature_from_humidity()
+        c = get_cpu_temp()
+        target_temperature = ((t+p+h)/3) - (c/divisor)
+        :return: A float that has the value for what the divisor would be.
+        """
+        average_sense_hat_temp = (self.sense_hat_temp + self.sense_hat_temp_from_humidity + self.sense_hat_temp_from_pressure) / 3
+        return self.cpu_temp / -(self.current_target_temperature - average_sense_hat_temp)
+
+    def update_current_target_temperature(self):
+        """
+        This update the target temperature so that when we calculate the CPU divisor, it does not change when we log it.
+        This is only in the case where the object TargetTemperature would be configured to gather temperature from an
+        external sensor.
+        """
+        self.current_target_temperature = self.target_temperature.get_temperature()
+
+    def update_cpu_temp(self):
         """
         This get the CPU temperature from "/opt/vc/bin/vcgencmd measure_temp".
-        :return: A float containing the CPU temperature in Celsius.
         """
         os_command = os.popen('/opt/vc/bin/vcgencmd measure_temp')
         command_result = os_command.read()
 
         match = re.search('^temp=([^\']+)\'C$', command_result)
-        cpu_temp = float(match.group(1))
+        self.cpu_temp = float(match.group(1))
 
-        return cpu_temp
-
-    def get_sense_hat_temp(self):
+    def update_sense_hat_temp(self):
         """
         Wrapper method for get_temperature for SensorHat.
-        :return: A float that has the temperature in Celsius from the humidity sensor.
         """
-        return self.sense_hat.get_temperature()
+        self.sense_hat_temp = self.sense_hat.get_temperature()
 
-    def get_sense_hat_temp_from_pressure(self):
+    def update_sense_hat_temp_from_pressure(self):
         """
         Wrapper method for get_temperature_from_pressure for SensorHat.
-        :return: A float that has the temperature in Celsius from the pressure sensor.
         """
-        return self.sense_hat.get_temperature_from_pressure()
+        self.sense_hat_temp_from_pressure = self.sense_hat.get_temperature_from_pressure()
 
-    def get_sense_hat_temp_from_humidity(self):
+    def update_sense_hat_temp_from_humidity(self):
         """
         Wrapper method for get_temperature_from_humidity for SensorHat.
-        :return: A float that has the temperature in Celsius from the humidity sensor.
         """
-        return self.sense_hat.get_temperature_from_humidity()
+        self.sense_hat_temp_from_humidity = self.sense_hat.get_temperature_from_humidity()
+
+    def update_cpu_load_average(self):
+        load_averages = os.getloadavg()
+        self.cpu_load_avg_1_min = load_averages[0]
+        self.cpu_load_avg_5_min = load_averages[1]
+        self.cpu_load_avg_15_min = load_averages[2]
 
     def get_cpu_usage(self):
         """
@@ -96,13 +162,13 @@ class Gatherer:
         roughly since the time_interval in seconds. The cpu times are gathered with update_cpu_times().
         :return: A list that contains the difference between the current cpu times and the previous cpu times.
         """
-        delta_cpu_stats = []
+        delta_cpu_times = []
         for i in range(len(self.previous_cpu_times)):
-            delta_cpu_stats[i] = self.current_cpu_times[i] - self.previous_cpu_times[i]
+            delta_cpu_times[i] = self.current_cpu_times[i] - self.previous_cpu_times[i]
 
-        return delta_cpu_stats
+        return delta_cpu_times
 
-    def update_cpu_times(self):
+    def update_cpu_stat_times(self):
         """
         This will move the current_cpu_times into the previous_cpu_times and update the current_cpu_times from
         /proc/stat.
@@ -117,6 +183,3 @@ class Gatherer:
             cpu_times[i] = int(cpu_times[i])
 
         self.current_cpu_times = cpu_times
-
-
-
