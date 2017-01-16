@@ -1,3 +1,5 @@
+import time
+
 from sense_hat import SenseHat
 
 from target_temp.target_temp import TargetTemperature
