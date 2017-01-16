@@ -99,6 +99,25 @@ class Manager:
             self.update_screen_for_temperature()
         elif Manager.screen_order[current_screen_index] is 'Humidity':
             self.update_screen_for_humidity()
+        elif Manager.screen_order[current_screen_index] is 'Pressure':
+            self.update_screen_for_pressure()
+
+
+    def update_screen_for_pressure(self):
+        """
+        Update the screen for the pressure screens.
+        """
+        pressure = self.sense_hat.get_pressure()
+        current_value_index = abs(self.value_index) % 2
+
+        if current_value_index == 0:
+            # TODO: Temporary for a test. Should work it up to include a formula.
+            self.sense_hat.show_message(str(round(pressure, 2)))
+        elif current_value_index == 1:
+            screen_fill_for_pressure = pressure / 20
+            pixels = [Manager.green if i < screen_fill_for_pressure else Manager.white
+                      for i in range(Manager.nb_pixels_on_screen)]
+            self.sense_hat.set_pixels(pixels)
 
     def update_screen_for_humidity(self):
         """
