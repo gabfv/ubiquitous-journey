@@ -44,10 +44,10 @@ class Gatherer:
     def start_logging(self, time_interval, log_filename, log_data_separator, target_temperature):
         """
         Start the logging to the log file.
-        :param time_interval:
-        :param log_filename:
-        :param log_data_separator:
-        :param target_temperature:
+        :param time_interval: Contains the time the main loop sleep in seconds. Mainly affect the speed of logging.
+        :param log_filename: Contains the filename of the logging file.
+        :param log_data_separator: The separator for the values inside the logging file.
+        :param target_temperature: An instance of TargetTemperature.
         """
         self.target_temperature = target_temperature
         self.current_target_temperature = target_temperature.get_temperature()
