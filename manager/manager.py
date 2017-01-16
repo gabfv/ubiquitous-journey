@@ -54,13 +54,11 @@ class Manager:
         joystick_events = self.sense_hat.stick.get_events()
 
         for joystick_event in joystick_events:
-            if joystick_event.action is not 'released':
-
-                # The joystick push is a special event. It'll turn off the screen.
-                if joystick_event.direction is 'push':
-                    self.turn_off_screen_and_wait_for_user_action()
-                else:
-                    self.update_screen_index(joystick_event)
+            # The joystick push is a special event. It'll turn off the screen.
+            if joystick_event.direction is 'middle':
+                self.turn_off_screen_and_wait_for_user_action()
+            elif joystick_event.action is not 'released':
+                self.update_screen_index(joystick_event)
 
     def turn_off_screen_and_wait_for_user_action(self):
         """
@@ -71,8 +69,8 @@ class Manager:
         # We should pause execution until the joystick is pushed.
         screen_off = True
         while screen_off:
-            joystick_event = self.sense_hat.stick.wait_for_event()
-            if joystick_event.direction is 'push':
+            joystick_event = self.sense_hat.stick.wait_for_event(emptybuffer=True)
+            if joystick_event.direction is 'middle':
                 self.update_screen()
                 screen_off = False
 
@@ -113,7 +111,7 @@ class Manager:
 
         if current_value_index == 0:
             # TODO: Temporary for a test. Should work it up to include a formula.
-            self.sense_hat.show_message(str(humidity))
+            self.sense_hat.show_message(str(round(humidity, 2)))
         elif current_value_index == 1:
             screen_fill_for_humidity = Manager.nb_pixels_on_screen * humidity / 100
             pixels = [Manager.blue if i < screen_fill_for_humidity else Manager.white
@@ -129,7 +127,7 @@ class Manager:
 
         if current_value_index == 0:
             # TODO: Temporary for a test. Should work it up to include a formula.
-            self.sense_hat.show_message(str(temperature))
+            self.sense_hat.show_message(str(round(temperature, 2)))
         elif current_value_index == 1:
             screen_fill_for_temp = temperature / 2.5 + 16
             pixels = [Manager.red if i < screen_fill_for_temp else Manager.white
