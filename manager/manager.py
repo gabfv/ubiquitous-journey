@@ -11,5 +11,21 @@ class Manager:
 
     def main_loop(self):
         while True:
-            print("TDB")
+            self.update_screen_rotation()
             # TODO : continue with what's needed
+
+    def update_screen_rotation(self):
+        acceleration_x = self.sense_hat.get_accelerometer_raw().['x']
+        acceleration_y = self.sense_hat.get_accelerometer_raw().['y']
+
+        acceleration_x = round(acceleration_x, 0)
+        acceleration_y = round(acceleration_y, 0)
+
+        if acceleration_x == -1:
+            self.sense_hat.set_rotation(90)
+        elif acceleration_y == 1:
+            self.sense_hat.set_rotation(0)
+        elif acceleration_y == -1:
+            self.sense_hat.set_rotation(180)
+        else:
+            self.sense_hat.set_rotation(270)
