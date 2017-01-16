@@ -15,8 +15,11 @@ class Manager:
             # TODO : continue with what's needed
 
     def update_screen_rotation(self):
-        acceleration_x = self.sense_hat.get_accelerometer_raw().['x']
-        acceleration_y = self.sense_hat.get_accelerometer_raw().['y']
+        """
+        Update the rotation of the SensorHat screen according to its accelerometer data.
+        """
+        acceleration_x = self.sense_hat.get_accelerometer_raw()['x']
+        acceleration_y = self.sense_hat.get_accelerometer_raw()['y']
 
         acceleration_x = round(acceleration_x, 0)
         acceleration_y = round(acceleration_y, 0)
