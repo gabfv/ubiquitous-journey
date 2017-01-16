@@ -1,13 +1,14 @@
-from sense_hat import SenseHat
 import os
-import time
 import re
+import time
+
+from sense_hat import SenseHat
 
 
 class Gatherer:
     """
     This class will gather data from various sensors of the SenseHat and other various sources from the RaspberryPi.
-    The data is mostly related to temperature and the RasberryPi CPU usage.
+    The data is mostly related to temperature and the RaspberryPi CPU usage.
     """
 
     def __init__(self, target_temperature, time_interval, log_filename):
@@ -18,6 +19,7 @@ class Gatherer:
         self.sense_hat = SenseHat()
         self.current_cpu_times = None
         self.previous_cpu_times = None
+        self.file_handle_log = self.open_log_file()
 
         # We'll need to update the cpu stats once and sleep the time_interval for the first run.
         self.update_cpu_times()
@@ -35,6 +37,9 @@ class Gatherer:
             self.update_cpu_times()
 
             time.sleep(self.time_interval)
+
+    def open_log_file(self):
+        return open(self.log_filename, 'a+')  # TODO: Need an exception handler.
 
 #   def get_all_data(self):
 
@@ -74,7 +79,7 @@ class Gatherer:
 
     def get_cpu_usage(self):
         """
-        This calculte the current CPU usage.
+        This calculate the current CPU usage.
         :return: a float that has the CPU usage in the same style as the load average shown by the command uptime on
         Linux (i.e. 0.52 for 52% utilization of one CPU core).
         """

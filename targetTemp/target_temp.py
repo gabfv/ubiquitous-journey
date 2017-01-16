@@ -19,7 +19,7 @@ class TargetTemperature:
         :param temperature:
         :return temperature:
         """
-        if (temperature >= 0 and temperature <= 70):
+        if 0 <= temperature <= 70:
             self.temperature = temperature
 
         return self.temperature
