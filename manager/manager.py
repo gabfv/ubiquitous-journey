@@ -1,5 +1,7 @@
 from sense_hat import SenseHat
 
+from target_temp.target_temp import TargetTemperature
+
 
 class Manager:
     """
@@ -8,7 +10,7 @@ class Manager:
     directions and toggle the screen with the push action.
     """
 
-    screen_order = ['Temperature', 'Pressure', 'Humidity']
+    screen_order = ['Temperature', 'Pressure', 'Humidity', 'Set Target Temperature', 'Manage Logging']
     green = (0, 255, 0)
     red = (255, 0, 0)
     blue = (0, 0, 255)
@@ -19,6 +21,7 @@ class Manager:
         self.sense_hat = SenseHat()
         self.screen_index = 0
         self.value_index = 0
+        self.target_temperature = TargetTemperature()
 
     def main_loop(self):
         while True:
@@ -94,13 +97,35 @@ class Manager:
         """
         Update the current screen shown on the SenseHat.
         """
-        current_screen_index = abs(self.screen_index) % 3
+        current_screen_index = abs(self.screen_index) % len(Manager.screen_order)
         if Manager.screen_order[current_screen_index] is 'Temperature':
             self.update_screen_for_temperature()
         elif Manager.screen_order[current_screen_index] is 'Humidity':
             self.update_screen_for_humidity()
         elif Manager.screen_order[current_screen_index] is 'Pressure':
             self.update_screen_for_pressure()
+        elif Manager.screen_order[current_screen_index] is 'Set Target Temperature':
+            self.update_screen_for_set_target_temperature()
+        elif Manager.screen_order[current_screen_index] is 'Manage Logging':
+            self.update_screen_for_manage_logging()
+
+    def update_screen_for_manage_logging(self):
+        """
+        Update the screen for managing the logging about the SenseHat and RaspberryPi various sensors.
+        """
+        self.sense_hat.show_message('TODO')
+
+    def update_screen_for_set_target_temperature(self):
+        """
+        Update the screen for setting the target temperature.
+        """
+        current_target_temperature = self.target_temperature.get_temperature()
+        self.sense_hat.show_message(str(current_target_temperature))
+
+        # Update the target temperature if the user pressed the up/down joystick.
+        if not self.value_index == 0:
+            current_target_temperature += self.value_index * 0.5
+            self.target_temperature.set_temperature(current_target_temperature)
 
 
     def update_screen_for_pressure(self):
