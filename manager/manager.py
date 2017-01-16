@@ -1,6 +1,6 @@
 from sense_hat import SenseHat
 
-from ..target_temp.target_temp import TargetTemperature
+from target_temp.target_temp import TargetTemperature
 
 
 class Manager:
