@@ -102,14 +102,24 @@ class Manager:
         """
         current_screen_index = abs(self.screen_index) % len(Manager.screen_order)
         if Manager.screen_order[current_screen_index] is 'Temperature':
+            self.sense_hat.show_letter('T', back_colour=Manager.red)
+            time.sleep(.5)
             self.update_screen_for_temperature()
         elif Manager.screen_order[current_screen_index] is 'Humidity':
+            self.sense_hat.show_letter('H', back_colour=Manager.blue)
+            time.sleep(.5)
             self.update_screen_for_humidity()
         elif Manager.screen_order[current_screen_index] is 'Pressure':
+            self.sense_hat.show_letter('P', back_colour=Manager.green)
+            time.sleep(.5)
             self.update_screen_for_pressure()
         elif Manager.screen_order[current_screen_index] is 'Set Target Temperature':
+            self.sense_hat.show_letter('S', back_colour=Manager.green)
+            time.sleep(.5)
             self.update_screen_for_set_target_temperature()
         elif Manager.screen_order[current_screen_index] is 'Manage Logging':
+            self.sense_hat.show_letter('L', back_colour=Manager.blue)
+            time.sleep(.5)
             self.update_screen_for_manage_logging()
 
     def update_screen_for_manage_logging(self):
@@ -129,7 +139,6 @@ class Manager:
         if not self.value_index == 0:
             current_target_temperature += self.value_index * 0.5
             self.target_temperature.set_temperature(current_target_temperature)
-
 
     def update_screen_for_pressure(self):
         """
