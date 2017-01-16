@@ -111,7 +111,6 @@ class Manager:
         current_value_index = abs(self.value_index) % 2
 
         if current_value_index == 0:
-            # TODO: Temporary for a test. Should work it up to include a formula.
             self.sense_hat.show_message(str(round(pressure, 2)))
         elif current_value_index == 1:
             screen_fill_for_pressure = pressure / 20
