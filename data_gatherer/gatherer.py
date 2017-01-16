@@ -44,6 +44,10 @@ class Gatherer:
         self.update_cpu_stat_times()
         time.sleep(self.time_interval)
 
+    def start_logging(self):
+        """
+        Start the logging to the log file.
+        """
         self.main_loop()
 
     def main_loop(self):
