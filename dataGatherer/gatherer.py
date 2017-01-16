@@ -16,11 +16,12 @@ class Gatherer:
                         'load_avg_5_min', 'load_avg_15_min', 'sense_hat_temp', 'sense_hat_temp_from_humidity',
                         'sense_hat_temp_from_pressure', 'cpu_temp']
 
-    def __init__(self, target_temperature, time_interval, log_filename):
+    def __init__(self, target_temperature, time_interval, log_filename, log_data_separator):
         self.target_temperature = target_temperature
         self.current_target_temperature = target_temperature.get_temperature()
         self.time_interval = time_interval
         self.log_filename = log_filename
+        self.log_data_separator = log_data_separator
 
         self.sense_hat = SenseHat()
         self.current_cpu_times = None
@@ -33,6 +34,8 @@ class Gatherer:
         self.sense_hat_temp_from_pressure = None
         self.cpu_temp = None
         self.data_for_logging = {}
+
+        # TODO: should check if the header is correct. Perhaps include a version number?
         self.file_handle_log = self.open_log_file()
 
         # We'll need to update the cpu stats once and sleep the time_interval for the first run.
@@ -48,7 +51,7 @@ class Gatherer:
         """
         while True:
             self.update_all_data_for_logging()
-
+            self.log_all_data()
             time.sleep(self.time_interval)
 
     def open_log_file(self):
@@ -57,6 +60,17 @@ class Gatherer:
         :return: File handle for the log file.
         """
         return open(self.log_filename, 'a+')  # TODO: Need an exception handler.
+
+    def log_all_data(self):
+        """
+        Log (append) all the data that's captured into the logging file.
+        """
+        for column in Gatherer.order_of_columns:
+            self.file_handle_log.write(self.data_for_logging[column])
+            if column is not Gatherer.order_of_columns[-1]:
+                self.file_handle_log.write(self.log_data_separator)
+
+        self.file_handle_log.write('\n')
 
     def update_all_data_for_logging(self):
         """
