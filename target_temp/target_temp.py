@@ -5,6 +5,10 @@ class TargetTemperature:
     temperature, I will rely on an user configurable target temperature for now.
     """
     type = 'Celsius'
+    default_temperature = 24
+
+    def __init__(self):
+        self.temperature = TargetTemperature.default_temperature
 
     def __init__(self, temperature):
         self.temperature = temperature
