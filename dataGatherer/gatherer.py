@@ -52,19 +52,31 @@ class Gatherer:
         return cpu_temp
 
     def get_sense_hat_temp(self):
+        """
+        Wrapper method for get_temperature for SensorHat.
+        :return: A float that has the temperature in Celsius from the humidity sensor.
+        """
         return self.sense_hat.get_temperature()
 
     def get_sense_hat_temp_from_pressure(self):
+        """
+        Wrapper method for get_temperature_from_pressure for SensorHat.
+        :return: A float that has the temperature in Celsius from the pressure sensor.
+        """
         return self.sense_hat.get_temperature_from_pressure()
 
     def get_sense_hat_temp_from_humidity(self):
+        """
+        Wrapper method for get_temperature_from_humidity for SensorHat.
+        :return: A float that has the temperature in Celsius from the humidity sensor.
+        """
         return self.sense_hat.get_temperature_from_humidity()
 
     def get_cpu_usage(self):
         """
         This calculte the current CPU usage.
-        :return: Return the CPU usage in the same style as the load average is shown by uptime on Linux (i.e. 0.52
-        for 52% utilization of one CPU core).
+        :return: a float that has the CPU usage in the same style as the load average shown by the command uptime on
+        Linux (i.e. 0.52 for 52% utilization of one CPU core).
         """
         delta_cpu_stats = self.get_delta_cpu_times()
         cpu_usage_in_percent = 100 - (delta_cpu_stats[len(delta_cpu_stats) - 1] * 100.0 / sum(delta_cpu_stats))
