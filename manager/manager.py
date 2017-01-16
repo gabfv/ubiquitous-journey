@@ -23,6 +23,9 @@ class Manager:
         self.value_index = 0
         self.target_temperature = TargetTemperature()
 
+    def run(self):
+        self.main_loop()
+
     def main_loop(self):
         while True:
             self.update_screen_rotation()
@@ -177,7 +180,3 @@ class Manager:
                       for i in range(Manager.nb_pixels_on_screen)]
             self.sense_hat.set_pixels(pixels)
 
-
-if __name__ == '__main__':
-    manager = Manager()
-    manager.main_loop()
