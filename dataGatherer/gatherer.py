@@ -37,6 +37,7 @@ class Gatherer:
 
         # TODO: should check if the header is correct. Perhaps include a version number?
         self.file_handle_log = self.open_log_file()
+        self.insert_log_column_headers()
 
         # We'll need to update the cpu stats once and sleep the time_interval for the first run.
         self.update_cpu_stat_times()
@@ -60,6 +61,13 @@ class Gatherer:
         :return: File handle for the log file.
         """
         return open(self.log_filename, 'a+')  # TODO: Need an exception handler.
+
+    def insert_log_column_headers(self):
+        """
+        Insert the column headers in the log file, if there ain't any.
+        """
+        if os.path.getsize(self.log_filename) == 0:
+            self.file_handle_log.write(self.log_data_separator.join(Gatherer.order_of_columns) + '\n')
 
     def log_all_data(self):
         """
