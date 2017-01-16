@@ -99,22 +99,43 @@ class Manager:
         current_screen_index = abs(self.screen_index) % 3
         if Manager.screen_order[current_screen_index] is 'Temperature':
             self.update_screen_for_temperature()
+        elif Manager.screen_order[current_screen_index] is 'Humidity':
+            self.update_screen_for_humidity()
 
-    def update_screen_for_temperature(self):
+    def update_screen_for_humidity(self):
         """
-        Update the screen for the temperature screen.
+        Update the screen for the humidity screens.
         """
-        temperature = self.sense_hat.get_temperature()
-
+        # TODO: Since the temperature sensor isn't that accurate, we'll need to update it in another way that is
+        # calculated.
+        humidity = self.sense_hat.get_humidity()
         current_value_index = abs(self.value_index) % 2
 
         if current_value_index == 0:
-            self.sense_hat.show_message(str(self.sense_hat.get_temperature()))  # TODO: Temporary for a test.
+            # TODO: Temporary for a test. Should work it up to include a formula.
+            self.sense_hat.show_message(str(humidity))
+        elif current_value_index == 1:
+            screen_fill_for_humidity = Manager.nb_pixels_on_screen * humidity / 100
+            pixels = [Manager.blue if i < screen_fill_for_humidity else Manager.white
+                      for i in range(Manager.nb_pixels_on_screen)]
+            self.sense_hat.set_pixels(pixels)
+
+    def update_screen_for_temperature(self):
+        """
+        Update the screen for the temperature screens.
+        """
+        temperature = self.sense_hat.get_temperature()
+        current_value_index = abs(self.value_index) % 2
+
+        if current_value_index == 0:
+            # TODO: Temporary for a test. Should work it up to include a formula.
+            self.sense_hat.show_message(str(temperature))
         elif current_value_index == 1:
             screen_fill_for_temp = temperature / 2.5 + 16
             pixels = [Manager.red if i < screen_fill_for_temp else Manager.white
                       for i in range(Manager.nb_pixels_on_screen)]
             self.sense_hat.set_pixels(pixels)
+
 
 if __name__ == '__main__':
     manager = Manager()
