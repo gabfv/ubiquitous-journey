@@ -44,6 +44,7 @@ class Manager:
     def main_loop(self):
         while True:
             self.update_screen_rotation()
+            self.update_joystick_rotation()
             self.manage_joystick_events()
             self.update_screen()
 
@@ -65,11 +66,7 @@ class Manager:
         """
         Update the rotation of the SensorHat screen according to its accelerometer data.
         """
-        acceleration_x = self.sense_hat.get_accelerometer_raw()['x']
-        acceleration_y = self.sense_hat.get_accelerometer_raw()['y']
-
-        acceleration_x = round(acceleration_x, 0)
-        acceleration_y = round(acceleration_y, 0)
+        acceleration_x, acceleration_y = self.get_rounded_acceleration_x_y()
 
         if acceleration_x == -1:
             self.sense_hat.set_rotation(90)
@@ -79,7 +76,34 @@ class Manager:
             self.sense_hat.set_rotation(180)
         else:
             self.sense_hat.set_rotation(270)
-        # TODO: include a way to rotate the joystick as well?
+
+    def update_joystick_rotation(self):
+        """
+        Update the rotation of the SensorHat joystick according to its accelerometer data.
+        """
+        acceleration_x, acceleration_y = self.get_rounded_acceleration_x_y()
+
+        if acceleration_x == -1:  # 90 degrees
+            self.joystick_direction = {'left': 'down', 'right': 'up', 'up': 'left', 'down': 'right'}
+        elif acceleration_y == 1:  # 0 degrees
+            self.joystick_direction = {'left': 'left', 'right': 'right', 'up': 'up', 'down': 'down'}
+        elif acceleration_y == -1:  # 180 degrees
+            self.joystick_direction = {'left': 'right', 'right': 'left', 'up': 'down', 'down': 'up'}
+        else:  # 270 degrees
+            self.joystick_direction = {'left': 'up', 'right': 'down', 'up': 'right', 'down': 'left'}
+
+    def get_rounded_acceleration_x_y(self):
+        """
+        Get the rounded accelerometer data only for the x and y axis.
+        :return: A tuple containing the acceleration vector (g) and rounded with round(accel, 0)
+        """
+        acceleration_x = self.sense_hat.get_accelerometer_raw()['x']
+        acceleration_y = self.sense_hat.get_accelerometer_raw()['y']
+
+        acceleration_x = round(acceleration_x, 0)
+        acceleration_y = round(acceleration_y, 0)
+
+        return acceleration_x, acceleration_y
 
     def manage_joystick_events(self):
         """
@@ -113,17 +137,17 @@ class Manager:
         Update the screen index from the joystick event.
         :param joystick_event: The joystick event from which we will update
         """
-        if joystick_event.direction is 'left':
+        if joystick_event.direction is self.joystick_direction['left']:
             self.screen_index -= 1
             self.value_index = 0  # We don't want the values to carry through other screens.
             self.screen_title_shown = False
-        elif joystick_event.direction is 'right':
+        elif joystick_event.direction is self.joystick_direction['right']:
             self.screen_index += 1
             self.value_index = 0  # We don't want the values to carry through other screens.
             self.screen_title_shown = False
-        elif joystick_event.direction is 'down':
+        elif joystick_event.direction is self.joystick_direction['down']:
             self.value_index -= 1
-        elif joystick_event.direction is 'up':
+        elif joystick_event.direction is self.joystick_direction['up']:
             self.value_index += 1
 
     def update_screen(self):
