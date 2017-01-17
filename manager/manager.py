@@ -1,3 +1,4 @@
+import os
 import threading
 import time
 from queue import Queue
@@ -15,7 +16,7 @@ class Manager:
     directions and toggle the screen with the push action.
     """
 
-    screen_order = ['Temperature', 'Pressure', 'Humidity', 'CPU Temperature', 'CPU Usage', 'Set Target Temperature',
+    screen_order = ['Temperature', 'Pressure', 'Humidity', 'CPU Temperature', 'CPU Usage', 'Shutdown', 'Set Target Temperature',
                     'Logging Start/Off']
     green = (0, 255, 0)
     red = (255, 0, 0)
@@ -171,6 +172,8 @@ class Manager:
             self.update_screen_for_cpu_usage()
         elif Manager.screen_order[current_screen_index] == 'CPU Temperature':
             self.update_screen_for_cpu_temperature()
+        elif Manager.screen_order[current_screen_index] == 'Shutdown':
+            self.update_screen_for_shutdown()
 
     def show_screen_title(self):
         """
@@ -300,3 +303,17 @@ class Manager:
                       for i in range(Manager.nb_pixels_on_screen)]
             self.sense_hat.set_pixels(pixels)
 
+    def update_screen_for_shutdown(self):
+        """
+        Update the screen that allows the user to shutdown the RaspberryPi.
+        """
+        self.sense_hat.show_message("Shutdown now? Up to initiate.")
+
+        joystick_event = self.sense_hat.stick.wait_for_event(emptybuffer=True)
+        if joystick_event.direction is 'up':
+            self.sense_hat.show_message("Press up again to shutdown. Press anything else to cancel.")
+
+            joystick_event = self.sense_hat.stick.wait_for_event(emptybuffer=True)
+            if joystick_event.direction is 'up':
+                # Shutdown the RaspberryPi
+                os.system("sudo shutdown -h now")
