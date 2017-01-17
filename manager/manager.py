@@ -12,7 +12,7 @@ class Manager:
     directions and toggle the screen with the push action.
     """
 
-    screen_order = ['Temperature', 'Pressure', 'Humidity', 'Set Target Temperature', 'Manage Logging']
+    screen_order = ['Temperature', 'Pressure', 'Humidity', 'Set Target Temperature', 'Logging Start/Off']
     green = (0, 255, 0)
     red = (255, 0, 0)
     blue = (0, 0, 255)
@@ -24,6 +24,7 @@ class Manager:
         self.screen_index = 0
         self.value_index = 0
         self.target_temperature = TargetTemperature()
+        self.screen_title_shown = False
 
     def run(self):
         self.main_loop()
@@ -90,9 +91,11 @@ class Manager:
         if joystick_event.direction is 'left':
             self.screen_index -= 1
             self.value_index = 0  # We don't want the values to carry through other screens.
+            self.screen_title_shown = False
         elif joystick_event.direction is 'right':
             self.screen_index += 1
             self.value_index = 0  # We don't want the values to carry through other screens.
+            self.screen_title_shown = False
         elif joystick_event.direction is 'down':
             self.value_index -= 1
         elif joystick_event.direction is 'up':
@@ -102,27 +105,33 @@ class Manager:
         """
         Update the current screen shown on the SenseHat.
         """
+        self.show_screen_title()
+
         current_screen_index = abs(self.screen_index) % len(Manager.screen_order)
         if Manager.screen_order[current_screen_index] is 'Temperature':
-            self.sense_hat.show_letter('T', back_colour=Manager.red)
-            time.sleep(.5)
             self.update_screen_for_temperature()
         elif Manager.screen_order[current_screen_index] is 'Humidity':
-            self.sense_hat.show_letter('H', back_colour=Manager.blue)
-            time.sleep(.5)
             self.update_screen_for_humidity()
         elif Manager.screen_order[current_screen_index] is 'Pressure':
-            self.sense_hat.show_letter('P', back_colour=Manager.green)
-            time.sleep(.5)
             self.update_screen_for_pressure()
         elif Manager.screen_order[current_screen_index] is 'Set Target Temperature':
-            self.sense_hat.show_letter('S', back_colour=Manager.green)
-            time.sleep(.5)
             self.update_screen_for_set_target_temperature()
-        elif Manager.screen_order[current_screen_index] is 'Manage Logging':
-            self.sense_hat.show_letter('L', back_colour=Manager.blue)
-            time.sleep(.5)
+        elif Manager.screen_order[current_screen_index] is 'Logging Start/Off':
             self.update_screen_for_manage_logging()
+
+    def show_screen_title(self):
+        """
+        Show a screen title only once per screen change.
+        """
+        if not self.screen_title_shown:
+            colors = [Manager.red, Manager.blue, Manager.green]
+            current_color_index = abs(self.screen_index) % len(colors)
+            current_screen_index = abs(self.screen_index) % len(Manager.screen_order)
+
+            self.sense_hat.show_letter(Manager.screen_order[current_screen_index][0],
+                                       back_colour=colors[current_color_index])
+            time.sleep(.5)
+            self.screen_title_shown = True
 
     def update_screen_for_manage_logging(self):
         """
