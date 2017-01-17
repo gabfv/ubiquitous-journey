@@ -213,7 +213,7 @@ class Gatherer:
         roughly since the time_interval in seconds. The cpu times are gathered with update_cpu_times().
         :return: A list that contains the difference between the current cpu times and the previous cpu times.
         """
-        delta_cpu_times = []
+        delta_cpu_times = [None, None, None, None]
         for i in range(len(self.previous_cpu_times)):
             delta_cpu_times[i] = self.current_cpu_times[i] - self.previous_cpu_times[i]
 
