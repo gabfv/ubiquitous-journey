@@ -28,7 +28,6 @@ class Gatherer:
         """
         self.queue_start_logging = queue_start_logging
         self.target_temperature = target_temperature
-        self.current_target_temperature = target_temperature.get_temperature()
         self.time_interval = time_interval
         self.log_filename = log_filename
         self.log_data_separator = log_data_separator
@@ -47,6 +46,7 @@ class Gatherer:
         self.data_for_logging = {}
 
         if self.queue_start_logging:
+            self.current_target_temperature = target_temperature.get_temperature()
             self.run()
 
     def start_logging(self):
