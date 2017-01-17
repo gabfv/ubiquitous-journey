@@ -1,7 +1,9 @@
+import threading
 import time
 
 from sense_hat import SenseHat
 
+from data_gatherer.gatherer import Gatherer
 from target_temp.target_temp import TargetTemperature
 
 
@@ -25,16 +27,26 @@ class Manager:
         self.value_index = 0
         self.target_temperature = TargetTemperature()
         self.screen_title_shown = False
+        self.gatherer_thread = None
 
     def run(self):
         self.main_loop()
+
+    def run_with_logging(self, log_time_interval, log_filename, log_data_separator, target_temperature):
+        self.start_data_gatherer_thread(log_time_interval, log_filename, log_data_separator, target_temperature)
+        self.run()
 
     def main_loop(self):
         while True:
             self.update_screen_rotation()
             self.manage_joystick_events()
             self.update_screen()
-            # TODO : continue with what's needed
+
+    def start_data_gatherer_thread(self, log_time_interval, log_filename, log_data_separator, target_temperature):
+        self.gatherer_thread = threading.Thread(target=Gatherer, args=(log_time_interval, log_filename, log_data_separator,
+                                                                       target_temperature))
+        self.gatherer_thread.daemon = True
+        self.gatherer_thread.start()
 
     def update_screen_rotation(self):
         """

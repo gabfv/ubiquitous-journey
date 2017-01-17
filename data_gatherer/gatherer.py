@@ -48,11 +48,12 @@ class Gatherer:
         self.update_cpu_stat_times()
         time.sleep(self.time_interval)
 
+        self.start_logging()
+
     def start_logging(self):
         """
         Start the logging to the log file.
         """
-
         # TODO: should check if the header is correct. Perhaps include a version number?
         self.file_handle_log = self.open_log_file()
         self.insert_log_column_headers()
