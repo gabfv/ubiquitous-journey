@@ -257,7 +257,7 @@ class Manager:
         """
         Update the screen for the temperature screens.
         """
-        temperature = self.sense_hat.get_temperature()
+        temperature = self.get_estimated_temperature_with_magic_value()
         current_value_index = self.value_index % 2
 
         if current_value_index == 0:
@@ -271,7 +271,8 @@ class Manager:
 
     def get_estimated_temperature_with_magic_value(self):
         """
-        This method cheats a little bit to return an estimated value of the real temperature.
+        This method cheats a little bit to return an estimated value of the real temperature. Still very sensitive to
+        changes in CPU usage.
         """
         t = self.sense_hat.get_temperature()
         p = self.sense_hat.get_temperature_from_pressure()
