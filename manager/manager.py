@@ -32,12 +32,13 @@ class Manager:
         self.gatherer_thread = None
         self.gatherer_thread_logging_active = False
         self.queue_start_logging = Queue(maxsize=1)
+        self.joystick_direction = {'left': 'left', 'right': 'right', 'up': 'up', 'down': 'down'}
 
     def run(self):
         self.main_loop()
 
-    def run_with_logging(self, log_time_interval, log_filename, log_data_separator):
-        self.start_data_gatherer_thread(log_time_interval, log_filename, log_data_separator)
+    def run_with_logging(self, log_polling_interval, log_filename, log_data_separator):
+        self.start_data_gatherer_thread(log_polling_interval, log_filename, log_data_separator)
         self.run()
 
     def main_loop(self):
@@ -46,8 +47,15 @@ class Manager:
             self.manage_joystick_events()
             self.update_screen()
 
-    def start_data_gatherer_thread(self, log_time_interval, log_filename, log_data_separator):
-        self.gatherer_thread = threading.Thread(target=Gatherer, args=(self.queue_start_logging, log_time_interval,
+    def start_data_gatherer_thread(self, log_polling_interval, log_filename, log_data_separator):
+        """
+        Start the thread that will contain the data gatherer.
+        :param log_polling_interval: A float that has the sleep interval for the logging.
+        :param log_filename:
+        :param log_data_separator:
+        :return:
+        """
+        self.gatherer_thread = threading.Thread(target=Gatherer, args=(self.queue_start_logging, log_polling_interval,
                                                                        log_filename, log_data_separator,
                                                                        self.target_temperature))
         self.gatherer_thread.daemon = True

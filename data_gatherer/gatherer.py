@@ -17,18 +17,18 @@ class Gatherer:
                         'sense_hat_temp_from_pressure', 'cpu_temp', 'accelerometer_x', 'accelerometer_y',
                         'accelerometer_z']
 
-    def __init__(self, queue_start_logging, time_interval, log_filename, log_data_separator, target_temperature):
+    def __init__(self, queue_start_logging, polling_interval, log_filename, log_data_separator, target_temperature):
         """
         Init
         :param queue_start_logging: Contains the queue that will active the logging.
-        :param time_interval: Contains the time the main loop sleep in seconds. Mainly affect the speed of logging.
+        :param polling_interval: Contains the time the main loop sleep in seconds. Mainly affect the speed of logging.
         :param log_filename: Contains the filename of the logging file.
         :param log_data_separator: The separator for the values inside the logging file.
         :param target_temperature: An instance of TargetTemperature.
         """
         self.queue_start_logging = queue_start_logging
         self.target_temperature = target_temperature
-        self.time_interval = time_interval
+        self.polling_interval = polling_interval
         self.log_filename = log_filename
         self.log_data_separator = log_data_separator
 
@@ -72,13 +72,13 @@ class Gatherer:
         """
         # We'll need to update the cpu stats once and sleep the time_interval for the first run.
         self.update_cpu_stat_times()
-        time.sleep(self.time_interval)
+        time.sleep(self.polling_interval)
 
         logging_active = True
         while logging_active:
             self.update_all_data_for_logging()
             self.log_all_data()
-            time.sleep(self.time_interval)
+            time.sleep(self.polling_interval)
 
             # Check if logging is still active.
             if self.queue_start_logging.qsize() > 0:
@@ -93,7 +93,7 @@ class Gatherer:
         while True:
             if self.queue_start_logging.get():
                 self.start_logging()
-            time.sleep(self.time_interval)
+            time.sleep(self.polling_interval)
 
     def open_log_file(self):
         """
@@ -249,7 +249,7 @@ class Gatherer:
         Update the CPU stat times needed to calculate the current CPU usage. Note that this include a sleep.
         """
         self.update_cpu_stat_times()
-        time.sleep(self.time_interval)
+        time.sleep(self.polling_interval)
         self.update_cpu_stat_times()
 
     def get_delta_cpu_times(self):
