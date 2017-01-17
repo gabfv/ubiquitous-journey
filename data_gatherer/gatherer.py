@@ -46,7 +46,8 @@ class Gatherer:
         self.cpu_temp = None
         self.data_for_logging = {}
 
-        self.run()
+        if self.queue_start_logging:
+            self.run()
 
     def start_logging(self):
         """
@@ -186,13 +187,24 @@ class Gatherer:
 
     def update_cpu_temp(self):
         """
-        This get the CPU temperature from "/opt/vc/bin/vcgencmd measure_temp".
+        This update the CPU temperature from "/opt/vc/bin/vcgencmd measure_temp".
         """
         os_command = os.popen('/opt/vc/bin/vcgencmd measure_temp')
         command_result = os_command.read()
 
         match = re.search('^temp=([^\']+)\'C$', command_result)
         self.cpu_temp = float(match.group(1))
+
+    def get_cpu_temp(self):
+        """
+        This get the CPU temperature from "/opt/vc/bin/vcgencmd measure_temp".
+        :return: A float containing the CPU temperature in Celsius.
+        """
+        os_command = os.popen('/opt/vc/bin/vcgencmd measure_temp')
+        command_result = os_command.read()
+
+        match = re.search('^temp=([^\']+)\'C$', command_result)
+        return float(match.group(1))
 
     def update_sense_hat_temp(self):
         """
@@ -220,7 +232,8 @@ class Gatherer:
 
     def get_cpu_usage(self):
         """
-        This calculate the current CPU usage.
+        This calculate the current CPU usage. The CPU stat times need to be updated before so call update_cpu_usage()
+        first.
         :return: a float that has the CPU usage in the same style as the load average shown by the command uptime on
         Linux (i.e. 0.52 for 52% utilization of one CPU core).
         """
@@ -230,6 +243,14 @@ class Gatherer:
         cpu_usage_in_cpu_core = cpu_usage_in_percent / 100 * 4
 
         return cpu_usage_in_cpu_core
+
+    def update_cpu_usage(self):
+        """
+        Update the CPU stat times needed to calculate the current CPU usage. Note that this include a sleep.
+        """
+        self.update_cpu_stat_times()
+        time.sleep(self.time_interval)
+        self.update_cpu_stat_times()
 
     def get_delta_cpu_times(self):
         """

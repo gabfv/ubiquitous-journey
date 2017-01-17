@@ -15,7 +15,8 @@ class Manager:
     directions and toggle the screen with the push action.
     """
 
-    screen_order = ['Temperature', 'Pressure', 'Humidity', 'Set Target Temperature', 'Logging Start/Off']
+    screen_order = ['Temperature', 'Pressure', 'Humidity', 'CPU Temperature', 'CPU Usage', 'Set Target Temperature',
+                    'Logging Start/Off']
     green = (0, 255, 0)
     red = (255, 0, 0)
     blue = (0, 0, 255)
@@ -134,6 +135,10 @@ class Manager:
             self.update_screen_for_set_target_temperature()
         elif Manager.screen_order[current_screen_index] == 'Logging Start/Off':
             self.update_screen_for_manage_logging()
+        elif Manager.screen_order[current_screen_index] == 'CPU Usage':
+            self.update_screen_for_cpu_usage()
+        elif Manager.screen_order[current_screen_index] == 'CPU Temperature':
+            self.update_screen_for_cpu_temperature()
 
     def show_screen_title(self):
         """
@@ -226,6 +231,42 @@ class Manager:
         elif current_value_index == 1:
             screen_fill_for_temp = temperature / 2.5 + 16
             pixels = [Manager.red if i < screen_fill_for_temp else Manager.white
+                      for i in range(Manager.nb_pixels_on_screen)]
+            self.sense_hat.set_pixels(pixels)
+
+    def update_screen_for_cpu_temperature(self):
+        """
+        Update the screen for the CPU temperature screens.
+        """
+        data_gatherer = Gatherer(None, None, None, None, None)
+        data_gatherer.update_cpu_usage()
+        cpu_temperature = data_gatherer.get_cpu_temp()
+        current_value_index = self.value_index % 2
+
+        if current_value_index == 0:
+            # TODO: Temporary for a test. Should work it up to include a formula.
+            self.sense_hat.show_message(str(round(cpu_temperature, 2)))
+        elif current_value_index == 1:
+            screen_fill_for_cpu_temp = cpu_temperature - 24
+            pixels = [Manager.red if i < screen_fill_for_cpu_temp else Manager.white
+                      for i in range(Manager.nb_pixels_on_screen)]
+            self.sense_hat.set_pixels(pixels)
+
+    def update_screen_for_cpu_usage(self):
+        """
+        Update the screen for the cpu usage screens.
+        """
+        current_value_index = self.value_index % 2
+        data_gatherer = Gatherer(None, None, None, None, None)
+        data_gatherer.update_cpu_usage()
+        cpu_usage = data_gatherer.get_cpu_usage()
+
+        if current_value_index == 0:
+            # TODO: Temporary for a test. Should work it up to include a formula.
+            self.sense_hat.show_message(str(round(cpu_usage, 2)))
+        elif current_value_index == 1:
+            screen_fill_for_cpu_usage = cpu_usage / 4.0 + Manager.nb_pixels_on_screen
+            pixels = [Manager.blue if i < screen_fill_for_cpu_usage else Manager.white
                       for i in range(Manager.nb_pixels_on_screen)]
             self.sense_hat.set_pixels(pixels)
 
