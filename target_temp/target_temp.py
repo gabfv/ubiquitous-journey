@@ -7,7 +7,7 @@ class TargetTemperature:
     type = 'Celsius'
     default_temperature = 24
 
-    def __init__(self, temperature = None):
+    def __init__(self, temperature=None):
         if temperature is None:
             self.temperature = TargetTemperature.default_temperature
         else:
