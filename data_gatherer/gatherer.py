@@ -83,9 +83,8 @@ class Gatherer:
         """
         while True:
             if self.queue_start_logging.get():
-                self.logging_loop()
+                self.start_logging()
             time.sleep(self.time_interval)
-
 
     def open_log_file(self):
         """
