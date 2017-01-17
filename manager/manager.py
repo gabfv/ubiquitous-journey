@@ -261,9 +261,9 @@ class Manager:
         cpu_usage = data_gatherer.get_cpu_usage()
 
         if current_value_index == 0:
-            self.sense_hat.show_message(str(round(cpu_usage, 2)))
+            self.sense_hat.show_message(str(round(cpu_usage, 3)))
         elif current_value_index == 1:
-            screen_fill_for_cpu_usage = cpu_usage / 4.0 + Manager.nb_pixels_on_screen
+            screen_fill_for_cpu_usage = cpu_usage / 4.0 * Manager.nb_pixels_on_screen
             pixels = [Manager.blue if i < screen_fill_for_cpu_usage else Manager.white
                       for i in range(Manager.nb_pixels_on_screen)]
             self.sense_hat.set_pixels(pixels)
