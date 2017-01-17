@@ -238,7 +238,7 @@ class Manager:
         """
         Update the screen for the CPU temperature screens.
         """
-        data_gatherer = Gatherer(None, None, None, None, None)
+        data_gatherer = Gatherer(None, 0.5, None, None, None)
         data_gatherer.update_cpu_usage()
         cpu_temperature = data_gatherer.get_cpu_temp()
         current_value_index = self.value_index % 2
@@ -256,7 +256,7 @@ class Manager:
         Update the screen for the cpu usage screens.
         """
         current_value_index = self.value_index % 2
-        data_gatherer = Gatherer(None, None, None, None, None)
+        data_gatherer = Gatherer(None, 0.5, None, None, None)
         data_gatherer.update_cpu_usage()
         cpu_usage = data_gatherer.get_cpu_usage()
 
