@@ -1,7 +1,7 @@
 import threading
 import time
+from queue import Queue
 
-from Queue import Queue
 from sense_hat import SenseHat
 
 from data_gatherer.gatherer import Gatherer
