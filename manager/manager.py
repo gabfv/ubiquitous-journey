@@ -326,11 +326,11 @@ class Manager:
         """
         Update the screen that allows the user to shutdown the RaspberryPi.
         """
-        self.sense_hat.show_message("Shutdown now? Up to initiate.")
+        self.sense_hat.show_message("Shutdown? Press up.")
 
         joystick_event = self.sense_hat.stick.wait_for_event(emptybuffer=True)
         if joystick_event.direction is 'up':
-            self.sense_hat.show_message("Press up again to shutdown. Press anything else to cancel.")
+            self.sense_hat.show_message("Press up again to shutdown.")
 
             joystick_event = self.sense_hat.stick.wait_for_event(emptybuffer=True)
             if joystick_event.direction is 'up':
