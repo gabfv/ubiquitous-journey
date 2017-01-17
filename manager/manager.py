@@ -107,7 +107,7 @@ class Manager:
         """
         self.show_screen_title()
 
-        current_screen_index = abs(self.screen_index) % len(Manager.screen_order)
+        current_screen_index = self.screen_index % len(Manager.screen_order)
         if Manager.screen_order[current_screen_index] is 'Temperature':
             self.update_screen_for_temperature()
         elif Manager.screen_order[current_screen_index] is 'Humidity':
@@ -125,8 +125,8 @@ class Manager:
         """
         if not self.screen_title_shown:
             colors = [Manager.red, Manager.blue, Manager.green]
-            current_color_index = abs(self.screen_index) % len(colors)
-            current_screen_index = abs(self.screen_index) % len(Manager.screen_order)
+            current_color_index = self.screen_index % len(colors)
+            current_screen_index = self.screen_index % len(Manager.screen_order)
 
             self.sense_hat.show_letter(Manager.screen_order[current_screen_index][0],
                                        back_colour=colors[current_color_index])
@@ -156,7 +156,7 @@ class Manager:
         Update the screen for the pressure screens.
         """
         pressure = self.sense_hat.get_pressure()
-        current_value_index = abs(self.value_index) % 2
+        current_value_index = self.value_index % 2
 
         if current_value_index == 0:
             self.sense_hat.show_message(str(round(pressure, 2)))
@@ -173,7 +173,7 @@ class Manager:
         # TODO: Since the temperature sensor isn't that accurate, we'll need to update it in another way that is
         # calculated.
         humidity = self.sense_hat.get_humidity()
-        current_value_index = abs(self.value_index) % 2
+        current_value_index = self.value_index % 2
 
         if current_value_index == 0:
             # TODO: Temporary for a test. Should work it up to include a formula.
@@ -189,7 +189,7 @@ class Manager:
         Update the screen for the temperature screens.
         """
         temperature = self.sense_hat.get_temperature()
-        current_value_index = abs(self.value_index) % 2
+        current_value_index = self.value_index % 2
 
         if current_value_index == 0:
             # TODO: Temporary for a test. Should work it up to include a formula.
