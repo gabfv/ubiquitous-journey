@@ -17,14 +17,16 @@ class Gatherer:
                         'sense_hat_temp_from_pressure', 'cpu_temp', 'accelerometer_x', 'accelerometer_y',
                         'accelerometer_z']
 
-    def __init__(self, time_interval, log_filename, log_data_separator, target_temperature):
+    def __init__(self, queue_start_logging, time_interval, log_filename, log_data_separator, target_temperature):
         """
         Init
+        :param queue_start_logging: Contains the queue that will active the logging.
         :param time_interval: Contains the time the main loop sleep in seconds. Mainly affect the speed of logging.
         :param log_filename: Contains the filename of the logging file.
         :param log_data_separator: The separator for the values inside the logging file.
         :param target_temperature: An instance of TargetTemperature.
         """
+        self.queue_start_logging = queue_start_logging
         self.target_temperature = target_temperature
         self.current_target_temperature = target_temperature.get_temperature()
         self.time_interval = time_interval
@@ -44,11 +46,7 @@ class Gatherer:
         self.cpu_temp = None
         self.data_for_logging = {}
 
-        # We'll need to update the cpu stats once and sleep the time_interval for the first run.
-        self.update_cpu_stat_times()
-        time.sleep(self.time_interval)
-
-        self.start_logging()
+        self.run()
 
     def start_logging(self):
         """
@@ -62,13 +60,32 @@ class Gatherer:
 
     def logging_loop(self):
         """
-        The main loop will gather various data from the sensors of the SensorHat and the RaspberryPi and log it all
+        The logging loop will gather various data from the sensors of the SensorHat and the RaspberryPi and log it all
         to a file.
         """
-        while True:
+        # We'll need to update the cpu stats once and sleep the time_interval for the first run.
+        self.update_cpu_stat_times()
+        time.sleep(self.time_interval)
+
+        logging_active = True
+        while logging_active:
             self.update_all_data_for_logging()
             self.log_all_data()
             time.sleep(self.time_interval)
+
+            # Check if logging is still active.
+            if self.queue_start_logging.qsize() > 0:
+                logging_active = self.queue_start_logging.get()
+
+    def run(self):
+        """
+        This will simply wait until logging is active.
+        """
+        while True:
+            if self.queue_start_logging.get():
+                self.logging_loop()
+            time.sleep(self.time_interval)
+
 
     def open_log_file(self):
         """

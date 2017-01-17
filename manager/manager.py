@@ -1,6 +1,7 @@
 import threading
 import time
 
+from Queue import Queue
 from sense_hat import SenseHat
 
 from data_gatherer.gatherer import Gatherer
@@ -28,12 +29,14 @@ class Manager:
         self.target_temperature = TargetTemperature()
         self.screen_title_shown = False
         self.gatherer_thread = None
+        self.gatherer_thread_logging_active = False
+        self.queue_start_logging = Queue(maxsize=1)
 
     def run(self):
         self.main_loop()
 
     def run_with_logging(self, log_time_interval, log_filename, log_data_separator):
-        self.start_data_gatherer_thread(log_time_interval, log_filename, log_data_separator)
+        self.start_data_gatherer_thread(self.queue_start_logging, log_time_interval, log_filename, log_data_separator)
         self.run()
 
     def main_loop(self):
@@ -149,7 +152,17 @@ class Manager:
         """
         Update the screen for managing the logging about the SenseHat and RaspberryPi various sensors.
         """
-        self.sense_hat.show_message('TODO')
+        if self.value_index > 0:
+            self.queue_start_logging.put(True)
+            self.gatherer_thread_logging_active = True
+        elif self.value_index < 0:
+            self.queue_start_logging.put(False)
+            self.gatherer_thread_logging_active = False
+
+        if self.gatherer_thread.is_alive() and self.gatherer_thread_logging_active:
+            self.sense_hat.show_letter('|', back_colour=Manager.green)
+        elif not self.gatherer_thread_logging_active:
+            self.sense_hat.show_letter('O', back_colour=Manager.red)
 
     def update_screen_for_set_target_temperature(self):
         """
