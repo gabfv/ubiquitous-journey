@@ -1,4 +1,5 @@
 import os
+import random
 import threading
 import time
 from queue import Queue
@@ -335,3 +336,9 @@ class Manager:
             if joystick_event.direction is 'up':
                 # Shutdown the RaspberryPi
                 os.system("sudo shutdown -h now")
+        else:
+            next_screen_choice = random.randint(0,3)
+            if next_screen_choice >= 2:
+                self.screen_index += 1
+            else:
+                self.screen_order -= 1
