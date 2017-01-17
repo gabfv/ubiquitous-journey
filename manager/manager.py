@@ -244,7 +244,6 @@ class Manager:
         current_value_index = self.value_index % 2
 
         if current_value_index == 0:
-            # TODO: Temporary for a test. Should work it up to include a formula.
             self.sense_hat.show_message(str(round(cpu_temperature, 2)))
         elif current_value_index == 1:
             screen_fill_for_cpu_temp = cpu_temperature - 24
@@ -262,7 +261,6 @@ class Manager:
         cpu_usage = data_gatherer.get_cpu_usage()
 
         if current_value_index == 0:
-            # TODO: Temporary for a test. Should work it up to include a formula.
             self.sense_hat.show_message(str(round(cpu_usage, 2)))
         elif current_value_index == 1:
             screen_fill_for_cpu_usage = cpu_usage / 4.0 + Manager.nb_pixels_on_screen
