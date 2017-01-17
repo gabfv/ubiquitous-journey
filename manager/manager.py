@@ -150,6 +150,7 @@ class Manager:
         if not self.value_index == 0:
             current_target_temperature += self.value_index * 0.5
             self.target_temperature.set_temperature(current_target_temperature)
+            self.value_index = 0
 
     def update_screen_for_pressure(self):
         """
