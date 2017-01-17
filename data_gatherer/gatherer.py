@@ -50,13 +50,19 @@ class Gatherer:
 
     def start_logging(self):
         """
-        Start the logging to the log file.
+        Start the logging of data to the log file.
         """
         # TODO: should check if the header is correct. Perhaps include a version number?
         self.file_handle_log = self.open_log_file()
         self.insert_log_column_headers()
 
         self.logging_loop()
+
+    def stop_logging(self):
+        """
+        Stop the logging of data to the log file.
+        """
+        self.file_handle_log.close()
 
     def logging_loop(self):
         """
@@ -76,6 +82,8 @@ class Gatherer:
             # Check if logging is still active.
             if self.queue_start_logging.qsize() > 0:
                 logging_active = self.queue_start_logging.get()
+
+        self.stop_logging()
 
     def run(self):
         """
