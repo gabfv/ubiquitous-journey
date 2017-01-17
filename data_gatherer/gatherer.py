@@ -121,9 +121,9 @@ class Gatherer:
         self.data_for_logging['cpu_temp'] = str(self.cpu_temp)
 
         # Accelerometer data
-        self.data_for_logging['accelerometer_x'] = accelerometer_data['x']
-        self.data_for_logging['accelerometer_y'] = accelerometer_data['y']
-        self.data_for_logging['accelerometer_z'] = accelerometer_data['z']
+        self.data_for_logging['accelerometer_x'] = str(accelerometer_data['x'])
+        self.data_for_logging['accelerometer_y'] = str(accelerometer_data['y'])
+        self.data_for_logging['accelerometer_z'] = str(accelerometer_data['z'])
 
         # This should be added last so the date is when nearly everything is done before actual logging.
         self.data_for_logging['date'] = str(datetime.now())
