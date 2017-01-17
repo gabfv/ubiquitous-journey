@@ -36,8 +36,7 @@ class Manager:
         self.main_loop()
 
     def run_with_logging(self, log_time_interval, log_filename, log_data_separator):
-        self.start_data_gatherer_thread(self.queue_start_logging, log_time_interval, log_filename, log_data_separator,
-                                        self.target_temperature)
+        self.start_data_gatherer_thread(log_time_interval, log_filename, log_data_separator)
         self.run()
 
     def main_loop(self):
@@ -47,8 +46,9 @@ class Manager:
             self.update_screen()
 
     def start_data_gatherer_thread(self, log_time_interval, log_filename, log_data_separator):
-        self.gatherer_thread = threading.Thread(target=Gatherer, args=(log_time_interval, log_filename,
-                                                                       log_data_separator, self.target_temperature))
+        self.gatherer_thread = threading.Thread(target=Gatherer, args=(self.queue_start_logging, log_time_interval,
+                                                                       log_filename, log_data_separator,
+                                                                       self.target_temperature))
         self.gatherer_thread.daemon = True
         self.gatherer_thread.start()
 
