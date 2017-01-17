@@ -278,13 +278,14 @@ class Manager:
         t = self.sense_hat.get_temperature()
         p = self.sense_hat.get_temperature_from_pressure()
         h = self.sense_hat.get_temperature_from_humidity()
-        t = os.popen('/opt/vc/bin/vcgencmd measure_temp')
-        cputemp = t.read()
+        os_command = os.popen('/opt/vc/bin/vcgencmd measure_temp')
+        cputemp = os_command.read()
         cputemp = cputemp.replace('temp=', '')
         cputemp = cputemp.replace('\'C\n', '')
         cputemp = float(cputemp)
         c = cputemp
-        return ((t + p + h) / 3) - (c / 3.9)
+        estimated_temp = ((t + p + h) / 3) - (c / 3.9)
+        return estimated_temp
 
     def update_screen_for_cpu_temperature(self):
         """
