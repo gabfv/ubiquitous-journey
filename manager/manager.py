@@ -108,15 +108,15 @@ class Manager:
         self.show_screen_title()
 
         current_screen_index = self.screen_index % len(Manager.screen_order)
-        if Manager.screen_order[current_screen_index] is 'Temperature':
+        if Manager.screen_order[current_screen_index] == 'Temperature':
             self.update_screen_for_temperature()
-        elif Manager.screen_order[current_screen_index] is 'Humidity':
+        elif Manager.screen_order[current_screen_index] == 'Humidity':
             self.update_screen_for_humidity()
-        elif Manager.screen_order[current_screen_index] is 'Pressure':
+        elif Manager.screen_order[current_screen_index] == 'Pressure':
             self.update_screen_for_pressure()
-        elif Manager.screen_order[current_screen_index] is 'Set Target Temperature':
+        elif Manager.screen_order[current_screen_index] == 'Set Target Temperature':
             self.update_screen_for_set_target_temperature()
-        elif Manager.screen_order[current_screen_index] is 'Logging Start/Off':
+        elif Manager.screen_order[current_screen_index] == 'Logging Start/Off':
             self.update_screen_for_manage_logging()
 
     def show_screen_title(self):
