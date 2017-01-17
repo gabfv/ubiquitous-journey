@@ -84,13 +84,13 @@ class Manager:
         acceleration_x, acceleration_y = self.get_rounded_acceleration_x_y()
 
         if acceleration_x == -1:  # 90 degrees
-            self.joystick_direction = {'left': 'down', 'right': 'up', 'up': 'left', 'down': 'right'}
+            self.joystick_direction = {'left': 'up', 'right': 'down', 'up': 'right', 'down': 'left'}
         elif acceleration_y == 1:  # 0 degrees
             self.joystick_direction = {'left': 'left', 'right': 'right', 'up': 'up', 'down': 'down'}
         elif acceleration_y == -1:  # 180 degrees
             self.joystick_direction = {'left': 'right', 'right': 'left', 'up': 'down', 'down': 'up'}
         else:  # 270 degrees
-            self.joystick_direction = {'left': 'up', 'right': 'down', 'up': 'right', 'down': 'left'}
+            self.joystick_direction = {'left': 'down', 'right': 'up', 'up': 'left', 'down': 'right'}
 
     def get_rounded_acceleration_x_y(self):
         """
