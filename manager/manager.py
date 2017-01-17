@@ -269,6 +269,21 @@ class Manager:
                       for i in range(Manager.nb_pixels_on_screen)]
             self.sense_hat.set_pixels(pixels)
 
+    def get_estimated_temperature_with_magic_value(self):
+        """
+        This method cheats a little bit to return an estimated value of the real temperature.
+        """
+        t = self.sense_hat.get_temperature()
+        p = self.sense_hat.get_temperature_from_pressure()
+        h = self.sense_hat.get_temperature_from_humidity()
+        t = os.popen('/opt/vc/bin/vcgencmd measure_temp')
+        cputemp = t.read()
+        cputemp = cputemp.replace('temp=', '')
+        cputemp = cputemp.replace('\'C\n', '')
+        cputemp = float(cputemp)
+        c = cputemp
+        return ((t + p + h) / 3) - (c / 3.9)
+
     def update_screen_for_cpu_temperature(self):
         """
         Update the screen for the CPU temperature screens.
