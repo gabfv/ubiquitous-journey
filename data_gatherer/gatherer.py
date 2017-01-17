@@ -17,15 +17,22 @@ class Gatherer:
                         'sense_hat_temp_from_pressure', 'cpu_temp', 'accelerometer_x', 'accelerometer_y',
                         'accelerometer_z']
 
-    def __init__(self):
-        self.target_temperature = None
-        self.current_target_temperature = None
-        self.time_interval = None
-        self.log_filename = None
-        self.log_data_separator = None
-        self.file_handle_log = None
+    def __init__(self, time_interval, log_filename, log_data_separator, target_temperature):
+        """
+        Init
+        :param time_interval: Contains the time the main loop sleep in seconds. Mainly affect the speed of logging.
+        :param log_filename: Contains the filename of the logging file.
+        :param log_data_separator: The separator for the values inside the logging file.
+        :param target_temperature: An instance of TargetTemperature.
+        """
+        self.target_temperature = target_temperature
+        self.current_target_temperature = target_temperature.get_temperature()
+        self.time_interval = time_interval
+        self.log_filename = log_filename
+        self.log_data_separator = log_data_separator
 
         self.sense_hat = SenseHat()
+        self.file_handle_log = None
         self.current_cpu_times = None
         self.previous_cpu_times = None
         self.cpu_load_avg_1_min = None
@@ -41,19 +48,10 @@ class Gatherer:
         self.update_cpu_stat_times()
         time.sleep(self.time_interval)
 
-    def start_logging(self, time_interval, log_filename, log_data_separator, target_temperature):
+    def start_logging(self):
         """
         Start the logging to the log file.
-        :param time_interval: Contains the time the main loop sleep in seconds. Mainly affect the speed of logging.
-        :param log_filename: Contains the filename of the logging file.
-        :param log_data_separator: The separator for the values inside the logging file.
-        :param target_temperature: An instance of TargetTemperature.
         """
-        self.target_temperature = target_temperature
-        self.current_target_temperature = target_temperature.get_temperature()
-        self.time_interval = time_interval
-        self.log_filename = log_filename
-        self.log_data_separator = log_data_separator
 
         # TODO: should check if the header is correct. Perhaps include a version number?
         self.file_handle_log = self.open_log_file()
