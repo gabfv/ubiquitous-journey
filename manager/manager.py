@@ -36,7 +36,8 @@ class Manager:
         self.main_loop()
 
     def run_with_logging(self, log_time_interval, log_filename, log_data_separator):
-        self.start_data_gatherer_thread(self.queue_start_logging, log_time_interval, log_filename, log_data_separator)
+        self.start_data_gatherer_thread(self.queue_start_logging, log_time_interval, log_filename, log_data_separator,
+                                        self.target_temperature)
         self.run()
 
     def main_loop(self):
