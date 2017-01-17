@@ -59,9 +59,9 @@ class Gatherer:
         self.file_handle_log = self.open_log_file()
         self.insert_log_column_headers()
 
-        self.main_loop()
+        self.logging_loop()
 
-    def main_loop(self):
+    def logging_loop(self):
         """
         The main loop will gather various data from the sensors of the SensorHat and the RaspberryPi and log it all
         to a file.
