@@ -165,6 +165,8 @@ class Manager:
         elif not self.gatherer_thread_logging_active:
             self.sense_hat.show_letter('O', back_colour=Manager.red)
 
+        self.value_index = 0
+
     def update_screen_for_set_target_temperature(self):
         """
         Update the screen for setting the target temperature.
