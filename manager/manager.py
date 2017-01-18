@@ -35,6 +35,9 @@ class Manager:
         self.gatherer_thread_logging_active = False
         self.queue_start_logging = Queue(maxsize=1)
         self.joystick_direction = {'left': 'left', 'right': 'right', 'up': 'up', 'down': 'down'}
+        self.acceleration_x = None
+        self.acceleration_y = None
+        self.acceleration_z = None
 
     def run(self):
         self.sense_hat.low_light = True
@@ -46,6 +49,7 @@ class Manager:
 
     def main_loop(self):
         while True:
+            self.update_acceleration_data()
             self.update_screen_rotation()
             self.update_joystick_rotation()
             self.manage_joystick_events()
@@ -55,9 +59,8 @@ class Manager:
         """
         Start the thread that will contain the data gatherer.
         :param log_polling_interval: A float that has the sleep interval for the logging.
-        :param log_filename:
-        :param log_data_separator:
-        :return:
+        :param log_filename: The filename for the logging file.
+        :param log_data_separator: The separator used between values in the logging file.
         """
         self.gatherer_thread = threading.Thread(target=Gatherer, args=(self.queue_start_logging, log_polling_interval,
                                                                        log_filename, log_data_separator,
@@ -95,16 +98,22 @@ class Manager:
         else:  # 270 degrees
             self.joystick_direction = {'left': 'down', 'right': 'up', 'up': 'left', 'down': 'right'}
 
+    def update_acceleration_data(self):
+        """
+        Update the acceleration data from the accelerometer on all 3 axis (x, y, z)
+        """
+        acceleration_all_axis = self.sense_hat.get_accelerometer_raw()
+        self.acceleration_x = acceleration_all_axis['x']
+        self.acceleration_y = acceleration_all_axis['y']
+        self.acceleration_z = acceleration_all_axis['z']
+
     def get_rounded_acceleration_x_y(self):
         """
-        Get the rounded accelerometer data only for the x and y axis.
-        :return: A tuple containing the acceleration vector (g) and rounded with round(accel, 0)
+        Get and round the acceleration on the x and y axis.
+        :return: A tuple that has the rounded acceleration for the x and y axis.
         """
-        acceleration_x = self.sense_hat.get_accelerometer_raw()['x']
-        acceleration_y = self.sense_hat.get_accelerometer_raw()['y']
-
-        acceleration_x = round(acceleration_x, 0)
-        acceleration_y = round(acceleration_y, 0)
+        acceleration_x = round(self.acceleration_x, 0)
+        acceleration_y = round(self.acceleration_y, 0)
 
         return acceleration_x, acceleration_y
 
