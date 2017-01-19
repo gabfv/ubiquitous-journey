@@ -17,8 +17,8 @@ class Manager:
     directions and toggle the screen with the push action.
     """
 
-    screen_order = ['Temperature', 'Pressure', 'Humidity', 'CPU Temperature', 'CPU Usage', 'Shutdown', 'Set Target Temperature',
-                    'Logging Start/Off']
+    screen_order = ['Temperature', 'Pressure', 'Humidity', 'CPU Temperature', 'CPU Usage', 'Shutdown',
+                    'Set Target Temperature', 'Logging Start/Off']
     green = (0, 255, 0)
     red = (255, 0, 0)
     blue = (0, 0, 255)
@@ -250,8 +250,8 @@ class Manager:
         """
         Update the screen for the humidity screens.
         """
-        # TODO: Since the temperature sensor isn't that accurate, we'll need to update it in another way that is
-        # calculated.
+        # TODO: Since the temperature sensor isn't that accurate, we'll need to update the humidity in another way
+        # that we will calculate.
         humidity = self.sense_hat.get_humidity()
         current_value_index = self.value_index % 2
 
@@ -268,11 +268,12 @@ class Manager:
         """
         Update the screen for the temperature screens.
         """
+        # TODO: Temporary for a test. Should work it up to include a formula. See the
+        # get_estimated_temperature_with_magic_value() method.
         temperature = self.get_estimated_temperature_with_magic_value()
         current_value_index = self.value_index % 2
 
         if current_value_index == 0:
-            # TODO: Temporary for a test. Should work it up to include a formula.
             self.sense_hat.show_message(str(round(temperature, 2)))
         elif current_value_index == 1:
             screen_fill_for_temp = temperature / 2.5 + 16
