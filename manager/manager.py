@@ -347,7 +347,7 @@ class Manager:
                 # Shutdown the RaspberryPi
                 os.system("sudo shutdown -h now")
         else:
-            next_screen_choice = random.randint(0,3)
+            next_screen_choice = random.randint(0, 3)
             if next_screen_choice >= 2:
                 self.screen_index += 1
             else:
