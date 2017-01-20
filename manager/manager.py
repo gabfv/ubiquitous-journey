@@ -284,7 +284,8 @@ class Manager:
     def get_estimated_temperature_with_magic_value(self):
         """
         This method cheats a little bit to return an estimated value of the real temperature. Still very sensitive to
-        changes in CPU usage.
+        changes in CPU usage. Depends on /opt/vc/bin/vcgencmd measure_temp
+        :return: A float that has the estimated ambient temperature in Celsius.
         """
         magic_value = 3.9
         temperature = self.sense_hat.get_temperature()
