@@ -1,5 +1,4 @@
 import os
-import random
 import threading
 import time
 from queue import Queue
@@ -144,7 +143,7 @@ class Manager:
                 self.update_screen()
                 screen_off = False
 
-    def update_screen_index(self, joystick_event):
+    def update_screen_index(self, joystick_event):  # TODO: refactor needed; this doesn't just update the screen index.
         """
         Update the screen index from the joystick event.
         :param joystick_event: The joystick event from which we will update
@@ -346,9 +345,9 @@ class Manager:
             if joystick_event.direction is self.joystick_direction['up']:
                 # Shutdown the RaspberryPi
                 os.system("sudo shutdown -h now")
-        else:
-            next_screen_choice = random.randint(0, 3)
-            if next_screen_choice >= 2:
-                self.screen_index += 1
-            else:
-                self.screen_order -= 1
+        # The current event was consumed with wait_for_events() so we need to act on it now because the event won't be
+        # treated by the main loop when it exits this method.
+        elif joystick_event.direction is self.joystick_direction['left']:
+            self.screen_index -= 1
+        elif joystick_event.direction is self.joystick_direction['right']:
+            self.screen_index += 1
