@@ -286,16 +286,16 @@ class Manager:
         This method cheats a little bit to return an estimated value of the real temperature. Still very sensitive to
         changes in CPU usage.
         """
-        t = self.sense_hat.get_temperature()
-        p = self.sense_hat.get_temperature_from_pressure()
-        h = self.sense_hat.get_temperature_from_humidity()
+        magic_value = 3.9
+        temperature = self.sense_hat.get_temperature()
+        temp_from_pressure = self.sense_hat.get_temperature_from_pressure()
+        temp_from_humidity = self.sense_hat.get_temperature_from_humidity()
         os_command = os.popen('/opt/vc/bin/vcgencmd measure_temp')
-        cputemp = os_command.read()
-        cputemp = cputemp.replace('temp=', '')
-        cputemp = cputemp.replace('\'C\n', '')
-        cputemp = float(cputemp)
-        c = cputemp
-        estimated_temp = ((t + p + h) / 3) - (c / 3.9)
+        command_result = os_command.read()
+        command_result = command_result.replace('temp=', '')
+        command_result = command_result.replace('\'C\n', '')
+        cpu_temp = float(command_result)
+        estimated_temp = ((temperature + temp_from_pressure + temp_from_humidity) / 3) - (cpu_temp / magic_value)
         return estimated_temp
 
     def update_screen_for_cpu_temperature(self):
