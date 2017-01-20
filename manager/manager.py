@@ -340,11 +340,10 @@ class Manager:
         self.sense_hat.show_message("Shutdown? Press up.")
 
         joystick_event = self.sense_hat.stick.wait_for_event(emptybuffer=True)
-        if joystick_event.direction is 'up':
+        if joystick_event.direction is self.joystick_direction['up']:
             self.sense_hat.show_message("Press up again to shutdown.")
-
             joystick_event = self.sense_hat.stick.wait_for_event(emptybuffer=True)
-            if joystick_event.direction is 'up':
+            if joystick_event.direction is self.joystick_direction['up']:
                 # Shutdown the RaspberryPi
                 os.system("sudo shutdown -h now")
         else:
