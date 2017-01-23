@@ -124,10 +124,11 @@ class Manager:
 
         for joystick_event in joystick_events:
             # The joystick push is a special event. It'll turn off the screen.
-            if joystick_event.direction is 'middle':
-                self.turn_off_screen_and_wait_for_user_action()
-            elif joystick_event.action is not 'released':
-                self.update_screen_index(joystick_event)
+            if joystick_event.action is not 'released':
+                if joystick_event.direction is 'middle':
+                    self.turn_off_screen_and_wait_for_user_action()
+                else:
+                    self.update_screen_index(joystick_event)
 
     def turn_off_screen_and_wait_for_user_action(self):
         """
