@@ -139,6 +139,7 @@ class Manager:
         # We should pause execution until the joystick is pushed.
         screen_off = True
         while screen_off:
+            time.sleep(0.5)
             joystick_event = self.sense_hat.stick.wait_for_event(emptybuffer=True)
             if joystick_event.direction is 'middle':
                 self.update_screen()
