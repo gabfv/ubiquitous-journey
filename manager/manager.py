@@ -1,3 +1,4 @@
+import logging
 import os
 import threading
 import time
@@ -37,6 +38,8 @@ class Manager:
         self.acceleration_x = None
         self.acceleration_y = None
         self.acceleration_z = None
+
+        logging.basicConfig(level=logging.INFO)
 
     def run(self):
         self.sense_hat.low_light = True
