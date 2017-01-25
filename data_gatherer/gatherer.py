@@ -20,7 +20,7 @@ class Gatherer:
     def __init__(self, queue_start_logging, polling_interval, log_filename, log_data_separator, target_temperature):
         """
         Init
-        :param queue_start_logging: Contains the queue that will active the logging.
+        :param queue_start_logging: Contains the queue that will activate the logging.
         :param polling_interval: Contains the time the main loop sleep in seconds. Mainly affect the speed of logging.
         :param log_filename: Contains the filename of the logging file.
         :param log_data_separator: The separator for the values inside the logging file.
@@ -49,21 +49,15 @@ class Gatherer:
             self.current_target_temperature = target_temperature.get_temperature()
             self.run()
 
-    def start_logging(self):
+    def start_logging_loop(self):
         """
-        Start the logging of data to the log file.
+        Open the file for logging and insert headers if necessary, then start the actual logging.
         """
         # TODO: should check if the header is correct. Perhaps include a version number?
         self.file_handle_log = self.open_log_file()
         self.insert_log_column_headers()
 
         self.logging_loop()
-
-    def stop_logging(self):
-        """
-        Stop the logging of data to the log file.
-        """
-        self.file_handle_log.close()
 
     def logging_loop(self):
         """
@@ -84,7 +78,7 @@ class Gatherer:
             if self.queue_start_logging.qsize() > 0:
                 logging_active = self.queue_start_logging.get()
 
-        self.stop_logging()
+        self.close_log_file()
 
     def run(self):
         """
@@ -92,7 +86,7 @@ class Gatherer:
         """
         while True:
             if self.queue_start_logging.get():
-                self.start_logging()
+                self.start_logging_loop()
             time.sleep(self.polling_interval)
 
     def open_log_file(self):
@@ -101,6 +95,12 @@ class Gatherer:
         :return: File handle for the log file.
         """
         return open(self.log_filename, 'a+')  # TODO: Need an exception handler.
+
+    def close_log_file(self):
+        """
+        Close the file handle for the log.
+        """
+        self.file_handle_log.close()
 
     def insert_log_column_headers(self):
         """

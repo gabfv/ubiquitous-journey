@@ -1,5 +1,4 @@
 import os
-import random
 import threading
 import time
 from queue import Queue
@@ -17,8 +16,8 @@ class Manager:
     directions and toggle the screen with the push action.
     """
 
-    screen_order = ['Temperature', 'Pressure', 'Humidity', 'CPU Temperature', 'CPU Usage', 'Shutdown', 'Set Target Temperature',
-                    'Logging Start/Off']
+    screen_order = ['Temperature', 'Pressure', 'Humidity', 'CPU Temperature', 'CPU Usage', 'Shutdown',
+                    'Set Target Temperature', 'Logging Start/Off']
     green = (0, 255, 0)
     red = (255, 0, 0)
     blue = (0, 0, 255)
@@ -35,6 +34,9 @@ class Manager:
         self.gatherer_thread_logging_active = False
         self.queue_start_logging = Queue(maxsize=1)
         self.joystick_direction = {'left': 'left', 'right': 'right', 'up': 'up', 'down': 'down'}
+        self.acceleration_x = None
+        self.acceleration_y = None
+        self.acceleration_z = None
 
     def run(self):
         self.sense_hat.low_light = True
@@ -46,6 +48,7 @@ class Manager:
 
     def main_loop(self):
         while True:
+            self.update_acceleration_data()
             self.update_screen_rotation()
             self.update_joystick_rotation()
             self.manage_joystick_events()
@@ -55,9 +58,8 @@ class Manager:
         """
         Start the thread that will contain the data gatherer.
         :param log_polling_interval: A float that has the sleep interval for the logging.
-        :param log_filename:
-        :param log_data_separator:
-        :return:
+        :param log_filename: The filename for the logging file.
+        :param log_data_separator: The separator used between values in the logging file.
         """
         self.gatherer_thread = threading.Thread(target=Gatherer, args=(self.queue_start_logging, log_polling_interval,
                                                                        log_filename, log_data_separator,
@@ -95,16 +97,22 @@ class Manager:
         else:  # 270 degrees
             self.joystick_direction = {'left': 'down', 'right': 'up', 'up': 'left', 'down': 'right'}
 
+    def update_acceleration_data(self):
+        """
+        Update the acceleration data from the accelerometer on all 3 axis (x, y, z)
+        """
+        acceleration_all_axis = self.sense_hat.get_accelerometer_raw()
+        self.acceleration_x = acceleration_all_axis['x']
+        self.acceleration_y = acceleration_all_axis['y']
+        self.acceleration_z = acceleration_all_axis['z']
+
     def get_rounded_acceleration_x_y(self):
         """
-        Get the rounded accelerometer data only for the x and y axis.
-        :return: A tuple containing the acceleration vector (g) and rounded with round(accel, 0)
+        Get and round the acceleration on the x and y axis.
+        :return: A tuple that has the rounded acceleration for the x and y axis.
         """
-        acceleration_x = self.sense_hat.get_accelerometer_raw()['x']
-        acceleration_y = self.sense_hat.get_accelerometer_raw()['y']
-
-        acceleration_x = round(acceleration_x, 0)
-        acceleration_y = round(acceleration_y, 0)
+        acceleration_x = round(self.acceleration_x, 0)
+        acceleration_y = round(self.acceleration_y, 0)
 
         return acceleration_x, acceleration_y
 
@@ -116,10 +124,11 @@ class Manager:
 
         for joystick_event in joystick_events:
             # The joystick push is a special event. It'll turn off the screen.
-            if joystick_event.direction is 'middle':
-                self.turn_off_screen_and_wait_for_user_action()
-            elif joystick_event.action is not 'released':
-                self.update_screen_index(joystick_event)
+            if joystick_event.action is not 'released':
+                if joystick_event.direction is 'middle':
+                    self.turn_off_screen_and_wait_for_user_action()
+                else:
+                    self.update_screen_index(joystick_event)
 
     def turn_off_screen_and_wait_for_user_action(self):
         """
@@ -130,12 +139,13 @@ class Manager:
         # We should pause execution until the joystick is pushed.
         screen_off = True
         while screen_off:
+            time.sleep(0.5)
             joystick_event = self.sense_hat.stick.wait_for_event(emptybuffer=True)
             if joystick_event.direction is 'middle':
                 self.update_screen()
                 screen_off = False
 
-    def update_screen_index(self, joystick_event):
+    def update_screen_index(self, joystick_event):  # TODO: refactor needed; this doesn't just update the screen index.
         """
         Update the screen index from the joystick event.
         :param joystick_event: The joystick event from which we will update
@@ -241,8 +251,8 @@ class Manager:
         """
         Update the screen for the humidity screens.
         """
-        # TODO: Since the temperature sensor isn't that accurate, we'll need to update it in another way that is
-        # calculated.
+        # TODO: Since the temperature sensor isn't that accurate, we'll need to update the humidity in another way
+        # that we will calculate.
         humidity = self.sense_hat.get_humidity()
         current_value_index = self.value_index % 2
 
@@ -259,11 +269,12 @@ class Manager:
         """
         Update the screen for the temperature screens.
         """
+        # TODO: Temporary for a test. Should work it up to include a formula. See the
+        # get_estimated_temperature_with_magic_value() method.
         temperature = self.get_estimated_temperature_with_magic_value()
         current_value_index = self.value_index % 2
 
         if current_value_index == 0:
-            # TODO: Temporary for a test. Should work it up to include a formula.
             self.sense_hat.show_message(str(round(temperature, 2)))
         elif current_value_index == 1:
             screen_fill_for_temp = temperature / 2.5 + 16
@@ -274,18 +285,19 @@ class Manager:
     def get_estimated_temperature_with_magic_value(self):
         """
         This method cheats a little bit to return an estimated value of the real temperature. Still very sensitive to
-        changes in CPU usage.
+        changes in CPU usage. Depends on /opt/vc/bin/vcgencmd measure_temp
+        :return: A float that has the estimated ambient temperature in Celsius.
         """
-        t = self.sense_hat.get_temperature()
-        p = self.sense_hat.get_temperature_from_pressure()
-        h = self.sense_hat.get_temperature_from_humidity()
+        magic_value = 3.9
+        temperature = self.sense_hat.get_temperature()
+        temp_from_pressure = self.sense_hat.get_temperature_from_pressure()
+        temp_from_humidity = self.sense_hat.get_temperature_from_humidity()
         os_command = os.popen('/opt/vc/bin/vcgencmd measure_temp')
-        cputemp = os_command.read()
-        cputemp = cputemp.replace('temp=', '')
-        cputemp = cputemp.replace('\'C\n', '')
-        cputemp = float(cputemp)
-        c = cputemp
-        estimated_temp = ((t + p + h) / 3) - (c / 3.9)
+        command_result = os_command.read()
+        command_result = command_result.replace('temp=', '')
+        command_result = command_result.replace('\'C\n', '')
+        cpu_temp = float(command_result)
+        estimated_temp = ((temperature + temp_from_pressure + temp_from_humidity) / 3) - (cpu_temp / magic_value)
         return estimated_temp
 
     def update_screen_for_cpu_temperature(self):
@@ -329,16 +341,15 @@ class Manager:
         self.sense_hat.show_message("Shutdown? Press up.")
 
         joystick_event = self.sense_hat.stick.wait_for_event(emptybuffer=True)
-        if joystick_event.direction is 'up':
+        if joystick_event.direction is self.joystick_direction['up']:
             self.sense_hat.show_message("Press up again to shutdown.")
-
             joystick_event = self.sense_hat.stick.wait_for_event(emptybuffer=True)
-            if joystick_event.direction is 'up':
+            if joystick_event.direction is self.joystick_direction['up']:
                 # Shutdown the RaspberryPi
                 os.system("sudo shutdown -h now")
-        else:
-            next_screen_choice = random.randint(0,3)
-            if next_screen_choice >= 2:
-                self.screen_index += 1
-            else:
-                self.screen_order -= 1
+        # The current event was consumed with wait_for_events() so we need to act on it now because the event won't be
+        # treated by the main loop when it exits this method.
+        elif joystick_event.direction is self.joystick_direction['left']:
+            self.screen_index -= 1
+        elif joystick_event.direction is self.joystick_direction['right']:
+            self.screen_index += 1
