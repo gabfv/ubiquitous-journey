@@ -45,7 +45,7 @@ class Manager:
         self.sense_hat.low_light = True
         self.main_loop()
 
-    def run_with_logging(self, log_polling_interval, log_filename, log_data_separator):
+    def run_with_data_gatherer(self, log_polling_interval, log_filename, log_data_separator):
         self.start_data_gatherer_thread(log_polling_interval, log_filename, log_data_separator)
         self.run()
 

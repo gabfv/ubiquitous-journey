@@ -13,4 +13,4 @@ log_data_separator = ';'
 
 if __name__ == '__main__':
     manager = Manager()
-    manager.run_with_logging(log_polling_interval, log_filename, log_data_separator)
+    manager.run_with_data_gatherer(log_polling_interval, log_filename, log_data_separator)
