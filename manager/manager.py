@@ -45,8 +45,8 @@ class Manager:
         self.sense_hat.low_light = True
         self.main_loop()
 
-    def run_with_data_gatherer(self, log_polling_interval, log_filename, log_data_separator):
-        self.start_data_gatherer_thread(log_polling_interval, log_filename, log_data_separator)
+    def run_with_data_gatherer(self, gatherer_polling_interval, gatherer_filename, gatherer_data_separator):
+        self.start_data_gatherer_thread(gatherer_polling_interval, gatherer_filename, gatherer_data_separator)
         self.run()
 
     def main_loop(self):
@@ -57,15 +57,16 @@ class Manager:
             self.manage_joystick_events()
             self.update_screen()
 
-    def start_data_gatherer_thread(self, log_polling_interval, log_filename, log_data_separator):
+    def start_data_gatherer_thread(self, gatherer_polling_interval, gatherer_filename, gatherer_data_separator):
         """
         Start the thread that will contain the data gatherer.
-        :param log_polling_interval: A float that has the sleep interval for the logging.
-        :param log_filename: The filename for the logging file.
-        :param log_data_separator: The separator used between values in the logging file.
+        :param gatherer_polling_interval: A float that has the sleep interval for the logging.
+        :param gatherer_filename: The filename for the logging file.
+        :param gatherer_data_separator: The separator used between values in the logging file.
         """
-        self.gatherer_thread = threading.Thread(target=Gatherer, args=(self.queue_start_logging, log_polling_interval,
-                                                                       log_filename, log_data_separator,
+        self.gatherer_thread = threading.Thread(target=Gatherer, args=(self.queue_start_logging,
+                                                                       gatherer_polling_interval, gatherer_filename,
+                                                                       gatherer_data_separator,
                                                                        self.target_temperature))
         self.gatherer_thread.daemon = True
         self.gatherer_thread.start()

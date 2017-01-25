@@ -17,20 +17,20 @@ class Gatherer:
                         'sense_hat_temp_from_pressure', 'cpu_temp', 'accelerometer_x', 'accelerometer_y',
                         'accelerometer_z']
 
-    def __init__(self, queue_start_logging, polling_interval, log_filename, log_data_separator, target_temperature):
+    def __init__(self, queue_start_logging, polling_interval, data_filename, data_separator, target_temperature):
         """
         Init
         :param queue_start_logging: Contains the queue that will activate the logging.
         :param polling_interval: Contains the time the main loop sleep in seconds. Mainly affect the speed of logging.
-        :param log_filename: Contains the filename of the logging file.
-        :param log_data_separator: The separator for the values inside the logging file.
+        :param data_filename: Contains the filename of the logging file.
+        :param data_separator: The separator for the values inside the logging file.
         :param target_temperature: An instance of TargetTemperature.
         """
         self.queue_start_logging = queue_start_logging
         self.target_temperature = target_temperature
         self.polling_interval = polling_interval
-        self.log_filename = log_filename
-        self.log_data_separator = log_data_separator
+        self.data_filename = data_filename
+        self.data_separator = data_separator
 
         self.sense_hat = SenseHat()
         self.file_handle_log = None
@@ -94,7 +94,7 @@ class Gatherer:
         Open the log file.
         :return: File handle for the log file.
         """
-        return open(self.log_filename, 'a+')  # TODO: Need an exception handler.
+        return open(self.data_filename, 'a+')  # TODO: Need an exception handler.
 
     def close_log_file(self):
         """
@@ -106,8 +106,8 @@ class Gatherer:
         """
         Insert the column headers in the log file, if there ain't any.
         """
-        if os.path.getsize(self.log_filename) == 0:
-            self.file_handle_log.write(self.log_data_separator.join(Gatherer.order_of_columns) + '\n')
+        if os.path.getsize(self.data_filename) == 0:
+            self.file_handle_log.write(self.data_separator.join(Gatherer.order_of_columns) + '\n')
 
     def log_all_data(self):
         """
@@ -116,7 +116,7 @@ class Gatherer:
         for column in Gatherer.order_of_columns:
             self.file_handle_log.write(self.data_for_logging[column])
             if column is not Gatherer.order_of_columns[-1]:
-                self.file_handle_log.write(self.log_data_separator)
+                self.file_handle_log.write(self.data_separator)
 
         self.file_handle_log.write('\n')
 
