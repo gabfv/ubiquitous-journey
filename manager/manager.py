@@ -176,13 +176,13 @@ class Manager:
         self.sense_hat.clear()
 
         # We should pause execution until the joystick is pushed.
-        self.logger.debug('Screen turned off.')
+        self.logger.info('Screen turned off.')
         screen_off = True
         while screen_off:
             time.sleep(0.5)
             joystick_event = self.sense_hat.stick.wait_for_event(emptybuffer=True)
             if joystick_event.direction is 'middle':
-                self.logger.debug('Screen turned on.')
+                self.logger.info('Screen turned on.')
                 self.update_screen()
                 screen_off = False
 
