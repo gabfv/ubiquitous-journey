@@ -195,14 +195,22 @@ class Manager:
             self.screen_index -= 1
             self.value_index = 0  # We don't want the values to carry through other screens.
             self.screen_title_shown = False
+            self.logger.debug('Joystick left pressed (with rotation adjusted).')
+            self.logger.info('Screen changed for : {0}.'.format(Manager.screen_order[self.screen_index %
+                                                                                     len(Manager.screen_order)]))
         elif joystick_event.direction is self.joystick_direction['right']:
             self.screen_index += 1
             self.value_index = 0  # We don't want the values to carry through other screens.
             self.screen_title_shown = False
+            self.logger.debug('Joystick right pressed (with rotation adjusted).')
+            self.logger.info('Screen changed for : {0}.'.format(Manager.screen_order[self.screen_index %
+                                                                                     len(Manager.screen_order)]))
         elif joystick_event.direction is self.joystick_direction['down']:
             self.value_index -= 1
+            self.logger.debug('Joystick down pressed (with rotation adjusted).')
         elif joystick_event.direction is self.joystick_direction['up']:
             self.value_index += 1
+            self.logger.debug('Joystick up pressed (with rotation adjusted).')
 
     def update_screen(self):
         """
