@@ -38,8 +38,14 @@ class Manager:
         self.acceleration_x = None
         self.acceleration_y = None
         self.acceleration_z = None
+        self.logger = logging.getLogger(__name__)
+        self.initialize_logger()
 
-        logging.basicConfig(level=logging.INFO)
+    def initialize_logger(self):
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(logging.INFO)
+        console_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+        self.logger.addHandler(console_handler)
 
     def run(self):
         self.sense_hat.low_light = True
