@@ -101,13 +101,21 @@ class Manager:
         acceleration_x, acceleration_y = self.get_rounded_acceleration_x_y()
 
         if acceleration_x == -1:
-            self.sense_hat.set_rotation(90)
+            rotation_degrees = 90
+            self.sense_hat.set_rotation(rotation_degrees)
+            self.logger.debug('Screen rotation set to {0} degrees.'.format(rotation_degrees))
         elif acceleration_y == 1:
-            self.sense_hat.set_rotation(0)
+            rotation_degrees = 0
+            self.sense_hat.set_rotation(rotation_degrees)
+            self.logger.debug('Screen rotation set to {0} degrees.'.format(rotation_degrees))
         elif acceleration_y == -1:
-            self.sense_hat.set_rotation(180)
+            rotation_degrees = 0
+            self.sense_hat.set_rotation(rotation_degrees)
+            self.logger.debug('Screen rotation set to {0} degrees.'.format(rotation_degrees))
         else:
-            self.sense_hat.set_rotation(270)
+            rotation_degrees = 0
+            self.sense_hat.set_rotation(rotation_degrees)
+            self.logger.debug('Screen rotation set to {0} degrees.'.format(rotation_degrees))
 
     def update_joystick_rotation(self):
         """
@@ -117,12 +125,16 @@ class Manager:
 
         if acceleration_x == -1:  # 90 degrees
             self.joystick_direction = {'left': 'up', 'right': 'down', 'up': 'right', 'down': 'left'}
+            self.logger.debug('Screen rotation set to 90 degrees.')
         elif acceleration_y == 1:  # 0 degrees
             self.joystick_direction = {'left': 'left', 'right': 'right', 'up': 'up', 'down': 'down'}
+            self.logger.debug('Screen rotation set to 90 degrees.')
         elif acceleration_y == -1:  # 180 degrees
             self.joystick_direction = {'left': 'right', 'right': 'left', 'up': 'down', 'down': 'up'}
+            self.logger.debug('Screen rotation set to 90 degrees.')
         else:  # 270 degrees
             self.joystick_direction = {'left': 'down', 'right': 'up', 'up': 'left', 'down': 'right'}
+            self.logger.debug('Screen rotation set to 90 degrees.')
 
     def update_acceleration_data(self):
         """
