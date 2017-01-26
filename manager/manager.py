@@ -93,6 +93,7 @@ class Manager:
                                                                        self.target_temperature))
         self.gatherer_thread.daemon = True
         self.gatherer_thread.start()
+        self.logger.info('Data gatherer thread started.')
 
     def update_screen_rotation(self):
         """
