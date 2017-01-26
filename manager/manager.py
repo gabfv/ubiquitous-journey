@@ -165,6 +165,7 @@ class Manager:
             # The joystick push is a special event. It'll turn off the screen.
             if joystick_event.action is not 'released':
                 if joystick_event.direction is 'middle':
+                    self.logger.debug('Joystick middle pressed (with rotation adjusted).')
                     self.turn_off_screen_and_wait_for_user_action()
                 else:
                     self.update_screen_index(joystick_event)
@@ -182,9 +183,12 @@ class Manager:
             time.sleep(0.5)
             joystick_event = self.sense_hat.stick.wait_for_event(emptybuffer=True)
             if joystick_event.direction is 'middle':
+                self.logger.debug('Joystick middle pressed (with rotation adjusted).')
                 self.logger.info('Screen turned on.')
                 self.update_screen()
                 screen_off = False
+            else:
+                self.logger.debug('Joystick events other than middle were ignored because screen is turned off.')
 
     def update_screen_index(self, joystick_event):  # TODO: refactor needed; this doesn't just update the screen index.
         """
