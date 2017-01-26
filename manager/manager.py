@@ -27,6 +27,7 @@ class Manager:
 
     def __init__(self):
         self.sense_hat = SenseHat()
+        self.sense_hat.low_light = True
         self.screen_index = 0
         self.value_index = 0
         self.target_temperature = TargetTemperature()
@@ -42,20 +43,36 @@ class Manager:
         self.initialize_logger()
 
     def initialize_logger(self):
+        """
+        Initialize the logger object. So far, only configured to output to the console. Will likely change in the future.
+        """
         console_handler = logging.StreamHandler()
         console_handler.setLevel(logging.INFO)
         console_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
         self.logger.addHandler(console_handler)
 
     def run(self):
-        self.sense_hat.low_light = True
+        """
+        Run the manager so it can display various information on the SenseHat screen.
+        """
         self.main_loop()
 
     def run_with_data_gatherer(self, gatherer_polling_interval, gatherer_filename, gatherer_data_separator):
+        """
+        Same as run() but it also enables the data gatherer so it can save various information from the SenseHat sensors
+        and the RaspberryPi to a file.
+        :param gatherer_polling_interval: The time interval in which it gathers and save sensors data. Note that it is
+        roughly accurate.
+        :param gatherer_filename: The filename where the sensors data will be saved to.
+        :param gatherer_data_separator: The separator used for the data.
+        """
         self.start_data_gatherer_thread(gatherer_polling_interval, gatherer_filename, gatherer_data_separator)
         self.run()
 
     def main_loop(self):
+        """
+        Update the screen from the actions of the user.
+        """
         while True:
             self.update_acceleration_data()
             self.update_screen_rotation()
