@@ -395,14 +395,22 @@ class Manager:
 
         joystick_event = self.sense_hat.stick.wait_for_event(emptybuffer=True)
         if joystick_event.direction is self.joystick_direction['up']:
+            self.logger.debug('Joystick up pressed (with rotation adjusted).')
+            self.logger.info('Shutdown sequence initiated.')
             self.sense_hat.show_message("Press up again to shutdown.")
             joystick_event = self.sense_hat.stick.wait_for_event(emptybuffer=True)
             if joystick_event.direction is self.joystick_direction['up']:
+                self.logger.debug('Joystick left pressed (with rotation adjusted).')
+                self.logger.info('Shutdown started.')
                 # Shutdown the RaspberryPi
                 os.system("sudo shutdown -h now")
         # The current event was consumed with wait_for_events() so we need to act on it now because the event won't be
         # treated by the main loop when it exits this method.
         elif joystick_event.direction is self.joystick_direction['left']:
             self.screen_index -= 1
+            self.logger.info('Screen changed for : {0}.'.format(Manager.screen_order[self.screen_index %
+                                                                                     len(Manager.screen_order)]))
         elif joystick_event.direction is self.joystick_direction['right']:
             self.screen_index += 1
+            self.logger.info('Screen changed for : {0}.'.format(Manager.screen_order[self.screen_index %
+                                                                                     len(Manager.screen_order)]))
