@@ -287,6 +287,8 @@ class Manager:
             current_target_temperature += self.value_index * 0.5
             self.target_temperature.set_temperature(current_target_temperature)
             self.value_index = 0
+            self.logger.info('Temperature is now set to {0} by the user.'.format(
+                self.target_temperature.get_temperature()))
 
     def update_screen_for_pressure(self):
         """
