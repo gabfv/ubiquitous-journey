@@ -262,11 +262,11 @@ class Manager:
         if self.value_index > 0:
             self.queue_start_logging.put(True)
             self.gatherer_thread_logging_active = True
-            self.logger.info("Data gathering started from joystick action.")
+            self.logger.info("Data gathering started by the user.")
         elif self.value_index < 0:
             self.queue_start_logging.put(False)
             self.gatherer_thread_logging_active = False
-            self.logger.info("Data gathering stopped from joystick action.")
+            self.logger.info("Data gathering stopped by the user.")
 
         if self.gatherer_thread.is_alive() and self.gatherer_thread_logging_active:
             self.sense_hat.show_letter('|', back_colour=Manager.green)
