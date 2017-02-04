@@ -297,9 +297,9 @@ class Manager:
         pressure = self.sense_hat.get_pressure()
         current_value_index = self.value_index % 2
 
-        if current_value_index == 0:
+        if current_value_index == 0:  # Scrolling text.
             self.sense_hat.show_message(str(round(pressure, 2)))
-        elif current_value_index == 1:
+        elif current_value_index == 1:  # Screen fill percentage.
             screen_fill_for_pressure = pressure / 20
             pixels = [Manager.green if i < screen_fill_for_pressure else Manager.white
                       for i in range(Manager.nb_pixels_on_screen)]
@@ -314,10 +314,10 @@ class Manager:
         humidity = self.sense_hat.get_humidity()
         current_value_index = self.value_index % 2
 
-        if current_value_index == 0:
+        if current_value_index == 0:  # Scrolling text.
             # TODO: Temporary for a test. Should work it up to include a formula.
             self.sense_hat.show_message(str(round(humidity, 2)))
-        elif current_value_index == 1:
+        elif current_value_index == 1:  # Screen fill percentage.
             screen_fill_for_humidity = Manager.nb_pixels_on_screen * humidity / 100
             pixels = [Manager.blue if i < screen_fill_for_humidity else Manager.white
                       for i in range(Manager.nb_pixels_on_screen)]
@@ -332,9 +332,9 @@ class Manager:
         temperature = self.get_estimated_temperature_with_magic_value()
         current_value_index = self.value_index % 2
 
-        if current_value_index == 0:
+        if current_value_index == 0:  # Scrolling text.
             self.sense_hat.show_message(str(round(temperature, 2)))
-        elif current_value_index == 1:
+        elif current_value_index == 1:  # Screen fill percentage.
             screen_fill_for_temp = temperature / 2.5 + 16
             pixels = [Manager.red if i < screen_fill_for_temp else Manager.white
                       for i in range(Manager.nb_pixels_on_screen)]
@@ -346,15 +346,21 @@ class Manager:
         changes in CPU usage. Depends on /opt/vc/bin/vcgencmd measure_temp
         :return: A float that has the estimated ambient temperature in Celsius.
         """
+        # The magic value was a rough estimate calculated with a couple of data points taken manually.
         magic_value = 3.9
+
+        # Temperature from sensors.
         temperature = self.sense_hat.get_temperature()
         temp_from_pressure = self.sense_hat.get_temperature_from_pressure()
         temp_from_humidity = self.sense_hat.get_temperature_from_humidity()
+
+        # Temperature for the CPU.
         os_command = os.popen('/opt/vc/bin/vcgencmd measure_temp')
         command_result = os_command.read()
         command_result = command_result.replace('temp=', '')
         command_result = command_result.replace('\'C\n', '')
         cpu_temp = float(command_result)
+
         estimated_temp = ((temperature + temp_from_pressure + temp_from_humidity) / 3) - (cpu_temp / magic_value)
         return estimated_temp
 
@@ -367,9 +373,9 @@ class Manager:
         cpu_temperature = data_gatherer.get_cpu_temp()
         current_value_index = self.value_index % 2
 
-        if current_value_index == 0:
+        if current_value_index == 0:  # Scrolling text.
             self.sense_hat.show_message(str(round(cpu_temperature, 2)))
-        elif current_value_index == 1:
+        elif current_value_index == 1:  # Screen fill percentage.
             screen_fill_for_cpu_temp = cpu_temperature - 24
             pixels = [Manager.red if i < screen_fill_for_cpu_temp else Manager.white
                       for i in range(Manager.nb_pixels_on_screen)]
@@ -384,9 +390,9 @@ class Manager:
         data_gatherer.update_cpu_usage()
         cpu_usage = data_gatherer.get_cpu_usage()
 
-        if current_value_index == 0:
+        if current_value_index == 0:  # Scrolling text.
             self.sense_hat.show_message(str(round(cpu_usage, 3)))
-        elif current_value_index == 1:
+        elif current_value_index == 1:  # Screen fill percentage.
             screen_fill_for_cpu_usage = cpu_usage / 4.0 * Manager.nb_pixels_on_screen
             pixels = [Manager.blue if i < screen_fill_for_cpu_usage else Manager.white
                       for i in range(Manager.nb_pixels_on_screen)]
