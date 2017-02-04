@@ -44,7 +44,8 @@ class Manager:
 
     def initialize_logger(self):
         """
-        Initialize the logger object. So far, only configured to output to the console. Will likely change in the future.
+        Initialize the logger object. So far, only configured to output to the console.
+        That Will likely change in the future.
         """
         console_handler = logging.StreamHandler()
         console_handler.setLevel(logging.INFO)
