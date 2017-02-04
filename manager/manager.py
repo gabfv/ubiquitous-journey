@@ -343,10 +343,12 @@ class Manager:
     def get_estimated_temperature_with_magic_value(self):
         """
         This method cheats a little bit to return an estimated value of the real temperature. Still very sensitive to
-        changes in CPU usage. Depends on /opt/vc/bin/vcgencmd measure_temp
+        changes in CPU usage. Depends on /opt/vc/bin/vcgencmd to measure CPU temperature. Also, the formula was inspired
+        by the Astro-Pi project : https://github.com/astro-pi/watchdog/blob/master/watchdog.py#L2399
         :return: A float that has the estimated ambient temperature in Celsius.
         """
-        # The magic value was a rough estimate calculated with a couple of data points taken manually.
+        # The magic value was a rough estimate calculated with a couple of data points taken manually. You may need to
+        # change that.
         magic_value = 3.9
 
         # Temperature from sensors.

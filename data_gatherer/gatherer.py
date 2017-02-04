@@ -171,6 +171,8 @@ class Gatherer:
         h = sense.get_temperature_from_humidity()
         c = get_cpu_temp()
         target_temperature = ((t+p+h)/3) - (c/divisor)
+        The target_temperature formula was from the Astro-Pi project :
+        https://github.com/astro-pi/watchdog/blob/master/watchdog.py#L2399
         :return: A float that has the value for what the divisor would be.
         """
         average_sense_hat_temp = (self.sense_hat_temp + self.sense_hat_temp_from_humidity +
